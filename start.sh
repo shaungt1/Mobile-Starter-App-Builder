@@ -1,60 +1,64 @@
 #!/usr/bin/env bash
+# Mobile Starter App Builder - single entry point (Git Bash on Windows, macOS, Linux).
+# Run with no command for an interactive menu.
 set -Eeuo pipefail
-
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-STARTUP="$ROOT/scripts/startup"
 
 usage() {
-  cat <<'EOF'
-Usage: bash start.sh COMMAND [arguments]
+  cat <<'USAGE'
+Usage: bash start.sh [command] [options]
 
-Commands:
-  create TARGET --plan PLAN.json [--install]
-      Generate from the owned local template and apply identity/theme from one plan.
-  starter verify
-      Verify generator tests and the owned template.
-  system
-      Read-only host capability report.
-  bootstrap TARGET --name NAME --slug SLUG --bundle-id ID [options]
-      Clone, detach, configure, install, and verify a new app.
-  setup TARGET [--fix-expo] [--skip-verify]
-      Install an existing app and create .env without overwriting it. Expo fixes are opt-in.
-  configure TARGET --name NAME --slug SLUG --bundle-id ID [--scheme SCHEME]
-      Update generic Expo identity fields.
-  verify TARGET
-      Run Expo Doctor and every available project check.
-  run TARGET web|go|go-tunnel|dev-client|android|ios [extra Expo args]
-      Start the selected development surface or local native run.
-  capabilities list|show ID|install ID TARGET [--apply] [--no-verify]
-      Inspect or install one optional capability.
-  release TARGET build PROFILE PLATFORM [--yes] [--skip-checks]
-  release TARGET update CHANNEL MESSAGE [--yes] [--skip-checks]
-  release TARGET submit PLATFORM [--yes]
-  release TARGET web preview|production [--yes] [--skip-checks]
-      Guarded EAS release operations.
-  help
-EOF
+Create an app (in another folder or an existing new GitHub repository)
+  new [options]                 Guided: asks for platform, folder or repo, name, ID, UI (see: new --help)
+
+Prepare this machine
+  doctor [--platform expo|tauri|all]            Read-only report of installed tools
+  install-prereqs [--platform ...] [--dry-run]  Install missing tools (asks once)
+  android-setup [--dry-run] [--set-env]         Android SDK packages, NDK and an emulator
+
+Platform toolkits
+  expo <command>                Expo toolkit: create, setup, verify, run, capabilities, release (expo help)
+  tauri <command>               Tauri 2 toolkit: create, capability, verify (tauri help)
+
+Builder maintenance
+  verify                        Run the builder's own tests and script checks
+  help                          This help
+USAGE
 }
 
-command="${1:-help}"
-if (($#)); then shift; fi
+dispatch() {
+  local command="${1:-help}"
+  if (($#)); then shift; fi
+  case "$command" in
+    new) node "$ROOT/scripts/new-app.mjs" "$@" ;;
+    doctor) node "$ROOT/scripts/doctor.mjs" "$@" ;;
+    install-prereqs) bash "$ROOT/scripts/install-prereqs.sh" "$@" ;;
+    android-setup) bash "$ROOT/scripts/android-setup.sh" "$@" ;;
+    expo) bash "$ROOT/_expo/start.sh" "$@" ;;
+    tauri) bash "$ROOT/_tauri2/start.sh" "$@" ;;
+    verify) bash "$ROOT/scripts/verify-builder.sh" "$@" ;;
+    help | -h | --help) usage ;;
+    *) usage; printf '\nerror: unknown command: %s\n' "$command" >&2; return 2 ;;
+  esac
+}
 
-case "$command" in
-  create) node "$ROOT/starter/generator/create-app.mjs" "$@" ;;
-  starter)
-    subcommand="${1:-}"
-    if [[ "$subcommand" != "verify" ]]; then usage; exit 2; fi
-    node --test "$ROOT/tests/generator.test.mjs"
-    bash "$ROOT/starter/template/scripts/verify.sh"
-    ;;
-  system) node "$ROOT/code/check-system.mjs" "$@" ;;
-  bootstrap) bash "$STARTUP/bootstrap.sh" "$@" ;;
-  setup) bash "$STARTUP/setup.sh" "$@" ;;
-  configure) bash "$STARTUP/configure.sh" "$@" ;;
-  verify) bash "$STARTUP/verify.sh" "$@" ;;
-  run) bash "$STARTUP/run.sh" "$@" ;;
-  capabilities) node "$STARTUP/capabilities.mjs" "$@" ;;
-  release) bash "$STARTUP/release.sh" "$@" ;;
-  help|-h|--help) usage ;;
-  *) usage; printf '\nerror: unknown command: %s\n' "$command" >&2; exit 1 ;;
-esac
+if (($#)); then
+  dispatch "$@"
+  exit $?
+fi
+while true; do
+  cat <<'MENU'
+
+  Mobile Starter App Builder
+  1) Create a new app (guided)        4) Android SDK + emulator setup
+  2) Check this machine               5) Expo capability catalog
+  3) Install missing tools            6) Tauri capability catalog
+  0) Exit
+MENU
+  read -r -p "Choose: " choice
+  case "$choice" in
+    1) dispatch new ;; 2) dispatch doctor ;; 3) dispatch install-prereqs ;; 4) dispatch android-setup ;;
+    5) dispatch expo capabilities list ;; 6) dispatch tauri capability list ;; 0) exit 0 ;;
+    *) echo "Unknown option: $choice" ;;
+  esac || true
+done

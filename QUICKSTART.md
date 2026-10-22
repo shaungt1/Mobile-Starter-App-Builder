@@ -1,165 +1,81 @@
 # Quick start
 
-Use Git Bash or WSL on Windows, or a normal Bash shell on macOS/Linux. Commands are run from this
-playbook repository unless a step says otherwise.
+This page takes a developer from a fresh machine to a running app. Commands run from the repository
+root in Git Bash on Windows (installed with Git for Windows) or a normal terminal on macOS and Linux.
 
-## 1. Check the host
-
-```bash
-bash start.sh system
-```
-
-Git, Node.js 22.18+, and Bun are the core requirements. Android Studio/JDK are needed only for local
-Android native builds; Xcode requires macOS; EAS can build in the cloud.
-
-## 2A. Create a new independent application from the owned template
+## 1. Check the machine
 
 ```bash
-cp starter/project-plan.example.json ../my-app-plan.json
-# Edit name, identifiers, theme, and intended capabilities.
-bash start.sh create ../my-app --plan ../my-app-plan.json --install
+bash start.sh doctor                    # both platforms; or --platform expo / --platform tauri
 ```
 
-This is the recommended path. It uses the generic, locally owned template under `starter/template`,
-not a live upstream clone. The plan is copied into the generated app as its reproducible product contract.
+The report marks each tool OK or MISSING and says which targets (web, Expo Go, Android emulator, USB
+phone, iOS Simulator, Tauri desktop preview) this machine can run.
 
-## 2B. Bootstrap the preserved upstream template directly
+## 2. Install what is missing
 
 ```bash
-bash start.sh bootstrap ../my-app \
-  --name "My App" \
-  --slug my-app \
-  --bundle-id com.example.myapp
+bash start.sh install-prereqs --dry-run    # see the plan without changing anything
+bash start.sh install-prereqs              # install (asks once)
 ```
 
-Optional flags:
+The installer uses these sources; the Windows package IDs come from the winget package repository.
 
-```text
---scheme myapp                 URL/OAuth scheme; defaults to the slug
---template-url URL             Alternate template source
---template-ref REF             Branch, tag, or commit to clone
---skip-install                 Clone/configure only
---skip-verify                  Install without the verification gate
---skip-expo-fix                Do not align packages with Expo's current SDK patch set
---yes                          Confirm the target Git-history detachment non-interactively
-```
+| Tool | Windows (winget ID) | macOS | Linux |
+| --- | --- | --- | --- |
+| Git | `Git.Git` | Xcode Command Line Tools | apt/dnf/pacman `git` |
+| Node.js LTS (22.18+) | `OpenJS.NodeJS.LTS` | `brew install node` | nodejs.org download (manual) |
+| Bun | `Oven-sh.Bun` | official script | official script |
+| Java 17 JDK (Expo Android) | `Microsoft.OpenJDK.17` (ID not verified by this project; falls back to a manual step) | `brew install --cask microsoft-openjdk@17` | `openjdk-17-jdk` / `java-17-openjdk-devel` |
+| Android Studio | `Google.AndroidStudio` | `brew install --cask android-studio` | manual download to `/opt/android-studio` |
+| Rust (Tauri) | `Rustlang.Rustup` | official rustup script | official rustup script |
+| C++ build tools (Tauri, Windows) | `Microsoft.VisualStudio.BuildTools` with the VCTools workload | Xcode Command Line Tools | WebKitGTK 4.1 and build packages |
+| iOS (Mac only) | not possible | Xcode (App Store), `brew install cocoapods` | not possible |
 
-The script accepts only a new or empty target directory. It records the template commit, preserves the
-MIT license, removes only the newly cloned target's `.git`, initializes `main`, and does not add a
-remote or commit on your behalf. It also preserves LF source endings on Windows so the template's
-formatter produces the same result on every platform.
-
-## 2C. Prepare an existing application
+Open Android Studio once and finish its setup wizard, make sure "Android SDK Command-line Tools (latest)"
+is ticked in SDK Manager > SDK Tools, then:
 
 ```bash
-bash start.sh setup ../existing-app
-bash start.sh configure ../existing-app \
-  --name "My App" \
-  --slug my-app \
-  --scheme myapp \
-  --bundle-id com.example.myapp
-bash start.sh verify ../existing-app
+bash start.sh android-setup --dry-run      # shows packages: platform-tools, emulator, android-35, build-tools 36.0.0, NDK, system image
+bash start.sh android-setup --set-env      # installs them, accepts licenses (asks), creates an emulator, saves ANDROID_HOME/NDK_HOME
 ```
 
-Setup preserves an existing `.env`. If it is missing, setup copies `.env.example` to `.env`. Existing
-apps are not dependency-mutated beyond their lockfile unless you pass `--fix-expo`.
+On Windows, close and reopen Git Bash and VS Code after installs so the new tools are on PATH.
 
-## 3. Choose capabilities
+## 3. Create an app
 
 ```bash
-bash start.sh capabilities list
-bash start.sh capabilities show sqlite-drizzle
-bash start.sh capabilities install sqlite-drizzle ../my-app --apply
+bash start.sh new
 ```
 
-`install` is a dry run unless `--apply` is present. Install one capability at a time, finish its config,
-then run `bash start.sh verify ../my-app`. Native capabilities require a rebuilt development client.
+The command asks for the platform, the folder (or a GitHub repository URL), the name and bundle ID, and
+for Tauri the frontend and UI kit. Every answer can be given as a flag instead; see
+`bash start.sh new --help`. A repository must be new: only `.git`, `.github`, README, LICENSE and ignore
+files may exist in it. Those files are kept.
 
-Common choices:
+| Platform flag | Produces |
+| --- | --- |
+| `--platform expo` | the owned Expo template: auth, paywall, analytics, local SQL, notifications, EAS, launch scripts |
+| `--platform expo-clean` | Expo's current template (newest SDK) with NativeWind and React Native Reusables, demo removed |
+| `--platform tauri` | a Tauri 2 app: Vite or Next.js, shadcn/ui or Konsta UI, Rust core, mobile plugin catalog |
 
-- `ui-foundation`: NativeWind, gestures, animation, SVG, haptics, and safe areas.
-- `supabase-auth`: Supabase client, secure session storage, and browser OAuth support.
-- `sqlite-drizzle`: offline local SQLite with typed Drizzle access.
-- `electric-sync`: planning checklist for ElectricSQL sync; intentionally manual because schema,
-  Postgres shape permissions, and Electric service topology are application-specific.
-- `payments`, `analytics`, `notifications`, `ble`, `iot-network`, `camera-vision`, `audio-speech`,
-  `cloud-ai`, and `on-device-ai`: opt-in native/service stacks.
-
-## 4. Configure environment values
-
-Use the target's `.env.example` as the contract. Public client configuration uses `EXPO_PUBLIC_*`.
-Those values are readable by anyone inspecting the application bundle.
-
-```dotenv
-EXPO_PUBLIC_ENV=development
-EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
-EXPO_PUBLIC_REVENUECAT_IOS_KEY=
-EXPO_PUBLIC_REVENUECAT_ANDROID_KEY=
-EXPO_PUBLIC_REVENUECAT_ENTITLEMENT=pro
-EXPO_PUBLIC_POSTHOG_KEY=
-EXPO_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
-```
-
-Keep OpenAI/Anthropic provider secrets and Supabase service-role keys on a server or edge function, not
-in `.env` variables bundled into the app.
-
-## 5. Run the app
+## 4. Run it
 
 ```bash
-bash start.sh run ../my-app web
-bash start.sh run ../my-app go
-bash start.sh run ../my-app go-tunnel
-bash start.sh run ../my-app dev-client
+cd ../<app>
+bash start.sh setup          # dependencies, .env, native projects, checks
+bash start.sh                # menu
 ```
 
-- **Web:** fastest UI and browser-compatible API loop.
-- **Expo Go:** standard Expo SDK modules only.
-- **Development client:** custom native modules such as BLE, RevenueCat, Vision Camera, MMKV, or local
-  AI. After adding/changing a native module, rebuild the client before testing.
-- **Physical device:** required for realistic Bluetooth, camera, push, purchase, and on-device AI tests.
+Expo apps: `run web`, `run go`, `run android` (emulator, booted automatically), `run usb` (phone),
+`run ios` (Mac), `run dev-client`. Tauri apps: `run web`, `run desktop`, `run android`, `run ios` (Mac).
 
-## 6. Verify and release
+## Manual path without the scripts
 
-```bash
-bash start.sh verify ../my-app
-bash start.sh release ../my-app build preview android
-bash start.sh release ../my-app build production all
-bash start.sh release ../my-app update preview "Describe the compatible JS change"
-bash start.sh release ../my-app submit ios
-```
-
-Release actions run available checks and ask for confirmation. OTA updates are only for JavaScript and
-assets compatible with already-installed native runtimes; native dependency/config changes need a new
-binary build.
-
-## Manual setup (no automation)
-
-```bash
-git clone https://github.com/Simonstorms/expo-app-template.git ../my-app
-cd ../my-app
-git rev-parse HEAD                    # record this in NOTICE
-rm -rf .git                           # only inside the new clone
-git init
-git branch -M main
-cp .env.example .env
-bun install --frozen-lockfile
-bunx expo-doctor
-bunx expo install --fix               # only when Doctor reports SDK version mismatches
-bun run typecheck
-bun run lint
-bun run test:ci                       # if provided by package.json
-```
-
-Then edit `app.json`/`app.config.*`, `src/constants/brand.ts`, Supabase redirect settings, icons, legal
-URLs, and EAS ownership/project IDs. Keep `LICENSE`, add `NOTICE`, create your own remote, and make the
-first commit only after the clean baseline passes.
+For Expo, `_expo/QUICKSTART.md` ("Manual setup") lists each command. For Tauri, follow
+`_tauri2/docs/reference/01-prerequisites.md` and `14-mobile.md`, then copy `_tauri2/template` into a new
+folder and replace the `__APP_NAME__`, `__APP_SLUG__` and `__APP_ID__` placeholders.
 
 ## Troubleshooting
 
-- Duplicate/mismatched native dependencies: run `bunx expo-doctor`, then use `bunx expo install --fix`.
-- Phone cannot reach Metro: use `go-tunnel` and ensure `@expo/ngrok` is installed.
-- Native module unavailable in Expo Go/web: guard the import and use a development client.
-- OAuth returns to the wrong app: align scheme + redirect URLs in Expo config, Supabase, and providers.
-- EAS says the project is unlinked: run `bunx eas-cli login` and `bunx eas-cli init` in the target.
-- Never “fix” an install by committing `node_modules`, `.env`, signing keys, or access tokens.
+`docs/LESSONS_LEARNED.md` lists every problem met so far with its cause and fix.

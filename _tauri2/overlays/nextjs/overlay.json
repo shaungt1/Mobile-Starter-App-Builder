@@ -1,0 +1,16 @@
+{
+  "description": "Replaces the Vite + TanStack Router frontend with Next.js (App Router) exported as static files, which is how Tauri ships Next.js (no Node server at run time).",
+  "remove": ["index.html", "vite.config.ts", "src/main.tsx", "src/router.tsx", "src/vite-env.d.ts"],
+  "package": {
+    "removeDependencies": ["@tanstack/react-router"],
+    "removeDevDependencies": ["@tailwindcss/vite", "vite"],
+    "dependencies": { "next": "^16.4.2" },
+    "devDependencies": { "@tailwindcss/postcss": "^4.3.3" },
+    "scripts": { "dev:web": "next dev --port 1420", "build": "next build" }
+  },
+  "tauriConf": { "build": { "frontendDist": "../out" } },
+  "tsconfig": {
+    "compilerOptions": { "jsx": "preserve", "types": ["node"], "plugins": [{ "name": "next" }], "allowJs": true, "incremental": true },
+    "include": ["next-env.d.ts", "src", "tests", "next.config.ts", "vitest.config.mts", ".next/types/**/*.ts"]
+  }
+}

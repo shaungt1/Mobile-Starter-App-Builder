@@ -1,119 +1,54 @@
-# Agent start: Expo application setup
+# Agent start: Mobile Starter App Builder
 
-This is the canonical entry point for an AI agent using this playbook. Read it before running setup,
-changing a target app, or proposing dependencies.
+This is the canonical instruction file for an AI agent using this repository. It defines the workflow
+from a request such as "build a mobile app in this repository" to a verified, running app, and the rules
+that keep the user's work safe. Platform details are in `_expo/AGENT_START.md` and
+`_tauri2/AGENT_START.md`; read the one for the chosen platform after this file.
 
-## Mission
+## What this repository is
 
-Create or upgrade an independently owned Expo application quickly without hiding important product,
-security, native-runtime, or release decisions. Use this repository as a toolkit and the upstream
-template as a licensed source—not as a remote the new application continues to track.
+A generator. It writes a new app into another folder or repository and never copies itself there. Do
+not build an app inside this repository, and do not change files here unless the task is to improve the
+builder itself (then run `bash start.sh verify` before finishing).
 
-## Read order
+## Workflow
 
-1. This file.
-2. [`QUICKSTART.md`](QUICKSTART.md).
-3. The relevant section of [`expo-app-starter-playbook.md`](expo-app-starter-playbook.md).
-4. `config/capabilities.json` only for capabilities the user is considering.
-5. The target project's own `AGENTS.md`, README, package manifest, app config, EAS config, env example,
-   and Git status before modifying it.
+Each stage ends with a check; do not start the next stage while the current check fails.
 
-## First conversation: decisions to collect
+1. **Intake** (skill `mobile-intake`). Collect only what the user has not already said: platform (`expo`,
+   `expo-clean` or `tauri`; if undecided, show the comparison in `_tauri2/README.md` and let the user
+   choose), app name, bundle ID, target folder or GitHub repository URL, brand colors, the screens, and
+   the capabilities needed now. For Tauri also the frontend (`vite`/`nextjs`) and kit (`shadcn`/`konsta`).
+   Write the decisions into a plan file and show it.
+2. **Machine** (skill `mobile-host-setup`). `bash start.sh doctor --platform <p>`. Install anything missing
+   with `bash start.sh install-prereqs --platform <p>` and, for Android, `bash start.sh android-setup`.
+   Some steps are manual (Android Studio's first-launch wizard, Xcode from the App Store); tell the user
+   exactly which and continue with what is possible.
+3. **Generate** (skill `mobile-generate`).
+   `bash start.sh new --platform <p> --plan <plan> --target <folder>` or `--repo <url> [--target <clone folder>]`,
+   with `--yes`. Add `--install` to run setup, `--commit` for the first commit, and `--push` only when the
+   user asked for the app to be pushed.
+4. **Setup and verify** in the app folder: `bash start.sh setup`, then `bash start.sh verify`. A failed
+   baseline is fixed before anything else (skill `mobile-troubleshoot`, `docs/LESSONS_LEARNED.md`).
+5. **Run** (skill `mobile-run-device`): web first, then an emulator or device. State which targets could
+   not be run and why.
+6. **Capabilities** (skill `mobile-capability`): add one, verify, run on a device that supports it, repeat.
+7. **Screens** (skill `mobile-screens`): follow the app's `docs/SCREENS.md`; mock data first.
+8. **Hand-off** (skill `mobile-handoff`): report as described below.
 
-Ask only for decisions that cannot be safely inferred. Record the answers in the target project.
+## Safety rules
 
-### Identity and ownership
+- Never write into a folder that holds anything except `.git`, `.github`, README, LICENSE and ignore files;
+  the generators refuse, and an agent must not work around that by deleting files.
+- Never commit `.env`, keystores, provisioning profiles, signing passwords or API secrets. Values prefixed
+  `EXPO_PUBLIC_` or `VITE_` are compiled into the app and are public.
+- Push, publish, submit to a store, or send an over-the-air update only when the user asked for it.
+- Confirm current official documentation before changing SDK versions, signing, store or privacy settings.
+- Install native capabilities one at a time; a device test is the only proof that hardware features work.
 
-- App name, slug, URL scheme, organization/reverse-DNS bundle ID, platforms, and repository remote.
-- Whether this is a new app generated from `starter/template`, a deliberate direct-upstream bootstrap,
-  or an existing Expo app.
-- Upstream template ref/commit if reproducibility requires a specific revision.
+## Hand-off report
 
-### Runtime surface
-
-- Web, Expo Go, development build, physical Android/iOS device, emulator/simulator, or a combination.
-- Any native requirements: Bluetooth, camera/vision, local AI, background work, purchases, health,
-  files, local network, or custom config plugins. Any one of these may require a development build.
-
-### Product services
-
-- Authentication provider(s): Supabase, email, Apple, Google, or another backend.
-- Persistence: in-memory/mock, AsyncStorage/MMKV, SQLite + Drizzle, remote Postgres, or offline sync.
-- Subscriptions/payments, analytics, crash reporting, notifications, API proxy/edge functions, and
-  required third-party dashboards.
-- Data sensitivity, deletion/export requirements, privacy disclosures, and age/audience constraints.
-
-### Brand and interface
-
-- Primary, secondary, accent, semantic, neutral, and gradient colors.
-- Light/dark/system default, typography, radius/spacing, motion level, and accessibility needs.
-- Required screens, navigation structure, reference designs, and whether inherited demo routes stay.
-
-## Required execution sequence
-
-Never collapse these gates into one large unverified change.
-
-1. **Inspect:** confirm Git cleanliness, project instructions, runtime versions, lockfile, scripts,
-   environment contract, app identity, and current native modules. Do not overwrite user changes.
-2. **Generate or baseline:** for a new app copy `starter/project-plan.example.json`, fill in identity and
-   theme, then use `bash start.sh create <app> --plan <plan> --install`. Use `bootstrap` only when the
-   user explicitly wants a fresh upstream clone. For an existing app use `bash start.sh setup <app>`.
-   Preserve `LICENSE`/source records and keep generated Git history independent.
-3. **Baseline gate:** run `bash start.sh verify <app>`. If the baseline fails, stop feature installs and
-   diagnose the baseline first.
-4. **Identity and environment:** configure app identifiers and create `.env` from `.env.example`.
-   Never place server secrets in `EXPO_PUBLIC_*` values or commit `.env`.
-5. **Theme gate:** map the approved palette to tokens, verify light/dark contrast and reduced motion,
-   and render a small representative screen before expanding the UI.
-6. **Capabilities:** use `bash start.sh capabilities list`, discuss only relevant choices, install one
-   capability with `... install <id> <app> --apply`, complete its native/config/dashboard work, and run
-   verification before selecting the next.
-7. **Product work:** build screens against mocks or typed service interfaces first. Connect real APIs,
-   persistence, auth, payments, and hardware incrementally.
-8. **Runtime verification:** test web/Expo Go only where supported; test every native capability in a
-   development build and hardware-only behavior on a physical device.
-9. **Release readiness:** run checks, validate production configuration and privacy/store metadata,
-   then use the guarded release command. Publishing and store submission require explicit approval.
-10. **Handoff:** report exact commands run, passing/failing gates, enabled capabilities, remaining
-    external dashboard tasks, runtime limitations, source commit, Git commit, and push status.
-
-## Dependency policy
-
-- Read `package.json` and the lockfile before adding anything; do not duplicate existing packages.
-- Use `bunx expo install` for Expo/native packages so Expo selects SDK-compatible versions.
-- Use `bun add` for pure JavaScript packages and `bun add -d` for development-only tools.
-- Do not install the entire capability catalog. Each native dependency increases build size, review
-  burden, permissions, and upgrade risk.
-- Re-run Expo Doctor, typecheck, lint, and tests after each capability. Commit small working stages.
-- Confirm current official documentation before changing Expo SDK, React Native, EAS, store, auth,
-  payment, privacy, or security configuration; these are time-sensitive.
-
-## Security and environment rules
-
-- `EXPO_PUBLIC_*` values are embedded in the client bundle and are not secrets.
-- A Supabase publishable key (or legacy `anon` key) is valid in a client; `service_role` and secret
-  keys are never valid in a mobile bundle.
-- Provider secret keys belong in a server, edge function, CI/EAS secret, or secrets manager.
-- OAuth redirects must agree across the app scheme, app config, backend config, and provider dashboard.
-- Store auth sessions in a secure platform store; account deletion must be reachable to signed-in users.
-- Enable row-level security and least-privilege policies before using Supabase tables from a client.
-- Data API schema exposure/role grants and RLS are separate controls; verify both. Never authorize from
-  user-editable `user_metadata`, and give update policies both ownership `USING` and `WITH CHECK` rules.
-- Treat generated native folders as derived unless the target project explicitly commits them.
-
-## Git and release safety
-
-- For a new target, record the upstream URL and exact commit in `NOTICE`, remove only the target's
-  `.git`, initialize `main`, and add the new remote only after the user supplies it.
-- Never delete or rewrite unrelated work. Never force-push unless the user explicitly requests it and
-  understands the consequence.
-- `release.sh` performs networked, billable, or public actions. Preview/production builds, OTA updates,
-  deployments, and store submissions require a confirmation unless the user explicitly supplied
-  `--yes` for that exact action.
-
-## Definition of done
-
-The foundation is done when the target has an independent Git history and attribution, deterministic
-dependency install, documented environment contract, configured identity, selected (not blanket)
-capabilities, passing static/test checks, and a verified launch on the chosen runtime. A cloud build or
-store submission is a separate completion gate and must be reported as such.
+List: the plan used; every command run and its result; which checks passed; which targets were launched
+(web, Expo Go, Android emulator, USB phone, iOS Simulator, Tauri desktop preview); what was not verified
+and why; capabilities installed; manual steps left for the user (accounts, dashboards, signing); the
+app's path, Git branch, commit and whether it was pushed.
