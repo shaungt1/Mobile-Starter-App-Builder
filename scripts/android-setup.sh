@@ -29,6 +29,9 @@ AVD_NAME=""
 SET_ENV=0
 ASSUME_YES=0
 DRY_RUN=0
+# Git Bash often starts without the folder that holds powershell.exe (used to save Windows user variables).
+[[ -d /c/Windows/System32/WindowsPowerShell/v1.0 ]] && PATH="$PATH:/c/Windows/System32/WindowsPowerShell/v1.0"
+export PATH
 while (($#)); do
   case "$1" in
     --api) API="$2"; shift 2 ;;

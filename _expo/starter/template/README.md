@@ -10,6 +10,9 @@ PostHog analytics, notifications, EAS profiles, checks, and guarded release scri
 Requirements: Node 22.18+, Bun and Git, with Git Bash on Windows. Android runs also need a Java 17 JDK and
 the Android SDK; iOS runs need macOS with Xcode. `bash start.sh system` reports what this machine can run.
 
+A machine that has none of these tools can be prepared with `bash start.sh install-prereqs --platform expo` from the
+Mobile Starter App Builder repository that generated this app, or by hand with `docs/LOCAL_SETUP.md`.
+
 ```bash
 bash start.sh setup          # check the machine, install locked dependencies, create .env, verify
 bash start.sh                # interactive menu
@@ -54,6 +57,9 @@ See `docs/TESTING.md` for native and service-specific gates.
 - `src/lib/`: configured infrastructure adapters
 - `supabase/`: optional cloud schema, Edge Functions, and security tests
 
+Read `docs/RUNNING_ON_DEVICES.md` to choose between the browser, Expo Go, an emulator and a phone,
+`docs/LOCAL_SETUP.md` to prepare a machine by hand, `docs/PERFORMANCE.md` before judging or changing app size
+or startup time.
 Read `AGENT_START.md` before agent-driven changes, `docs/SCREENS.md` before adding screens,
 `docs/CAPABILITIES.md` before adding native SDKs, and `docs/FEATURES.md` to switch off or remove a
 built-in feature (auth, payments, analytics, notifications, local database, device modules, updates).

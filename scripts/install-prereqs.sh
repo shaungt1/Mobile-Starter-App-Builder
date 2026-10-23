@@ -93,7 +93,17 @@ if [[ "$OS" == "linux" && -r /etc/os-release ]]; then
 fi
 SUDO=""
 [[ "$OS" == "linux" && "$(id -u)" -ne 0 ]] && SUDO="sudo"
-for dir in "$HOME/.bun/bin" "$HOME/.cargo/bin"; do [[ -d "$dir" ]] && PATH="$dir:$PATH"; done
+# Added even when missing, so a tool installed by a step below is found by the steps that follow it.
+for dir in "$HOME/.bun/bin" "$HOME/.cargo/bin"; do PATH="$dir:$PATH"; done
+if [[ "$OS" == "windows" ]]; then
+  # Git Bash often starts without the folders that hold winget and PowerShell, so a machine that has
+  # winget still looks like it has none. Add the usual locations for this run (nothing is saved).
+  for dir in "${LOCALAPPDATA:+$(cygpath -u "$LOCALAPPDATA")/Microsoft/WindowsApps}" \
+    "${LOCALAPPDATA:+$(cygpath -u "$LOCALAPPDATA")/Microsoft/WinGet/Links}" \
+    "/c/Windows/System32/WindowsPowerShell/v1.0"; do
+    [[ -n "$dir" && -d "$dir" ]] && PATH="$PATH:$dir"
+  done
+fi
 export PATH
 
 ROWS=()
@@ -109,6 +119,10 @@ profile_line() { PROFILE+=("$1"); }
 
 winget_step() {
   local label="$1" id="$2" override="${3:-}" cmd
+  if ! have winget.exe; then
+    manual "$label: winget (the Windows Package Manager, part of App Installer in the Microsoft Store) was not found, so this cannot be done automatically. Install the tool by hand (see the README's prerequisites table) or install App Installer, then run this script again."
+    return
+  fi
   cmd="winget install --id $id -e --source winget --accept-package-agreements --accept-source-agreements"
   if [[ -n "$override" ]]; then
     step "$label: $cmd --override \"$override\"" "winget.exe install --id $id -e --source winget --accept-package-agreements --accept-source-agreements --override $(printf '%q' "$override")"
@@ -148,7 +162,15 @@ check_node() {
   local v; v="$(tool_version node --version)"
   if [[ -n "$v" ]] && version_ge "$v" "$MIN_NODE"; then row "Node.js >= $MIN_NODE" "$v" "ok"; return; fi
   case "$OS" in
-    windows) row "Node.js >= $MIN_NODE" "${v:--}" "winget (LTS)"; winget_step "Install Node.js LTS" OpenJS.NodeJS.LTS ;;
+    windows)
+      if have nvm; then
+        # nvm-windows owns the node on PATH; a second installer from winget would fight it, so leave the switch to the user.
+        row "Node.js >= $MIN_NODE" "${v:--}" "manual (nvm-windows)"
+        manual "Node.js is managed by nvm-windows. Run: nvm install $MIN_NODE   then: nvm use $MIN_NODE   (or a newer 22.x or 24.x LTS), then open a new Git Bash window. This script does not install Node.js over nvm."
+      else
+        row "Node.js >= $MIN_NODE" "${v:--}" "winget (LTS)"; winget_step "Install Node.js LTS" OpenJS.NodeJS.LTS
+      fi
+      ;;
     macos) row "Node.js >= $MIN_NODE" "${v:--}" "brew"; step "Install Node.js with Homebrew: brew install node" "brew install node" ;;
     linux) row "Node.js >= $MIN_NODE" "${v:--}" "manual"; manual "Install Node.js $MIN_NODE or newer from https://nodejs.org/en/download (the LTS release is fine)." ;;
   esac
@@ -159,7 +181,12 @@ check_bun() {
   if [[ -n "$v" ]] && version_ge "$v" "$MIN_BUN"; then row "Bun >= $MIN_BUN" "$v" "ok"; return; fi
   if [[ -n "$v" ]]; then row "Bun >= $MIN_BUN" "$v" "bun upgrade"; step "Upgrade Bun: bun upgrade" "bun upgrade"; return; fi
   case "$OS" in
-    windows) row "Bun >= $MIN_BUN" "-" "winget"; winget_step "Install Bun" Oven-sh.Bun ;;
+    windows)
+      # Bun's own installer, so it does not depend on winget or on which Node.js version is active
+      # (a Bun installed with `npm install -g` disappears when nvm switches Node.js versions).
+      row "Bun >= $MIN_BUN" "-" "official script"
+      step "Install Bun: powershell irm bun.sh/install.ps1 | iex" "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command 'irm bun.sh/install.ps1 | iex'"
+      ;;
     *)
       row "Bun >= $MIN_BUN" "-" "official script"
       step "Install Bun: curl -fsSL https://bun.com/install | SHELL=/bin/sh bash" "curl -fsSL https://bun.com/install | SHELL=/bin/sh bash"
@@ -223,7 +250,13 @@ check_rust() {
   if [[ -n "$v" ]] && version_ge "$v" "$MIN_RUST"; then row "Rust >= $MIN_RUST (rustup)" "$v" "ok"; return; fi
   if [[ -n "$v" ]] && have rustup; then row "Rust >= $MIN_RUST (rustup)" "$v" "rustup update"; step "Update Rust: rustup update stable" "rustup update stable"; return; fi
   case "$OS" in
-    windows) row "Rust >= $MIN_RUST (rustup)" "${v:--}" "winget"; winget_step "Install rustup" Rustlang.Rustup ;;
+    windows)
+      # rustup's official installer (needs the C++ build tools, checked above); -y accepts the defaults,
+      # which on Windows is the MSVC toolchain.
+      row "Rust >= $MIN_RUST (rustup)" "${v:--}" "official installer"
+      step "Install Rust: download rustup-init.exe from static.rust-lang.org and run it with -y" \
+        "curl -fsSL -o \"\${TEMP:-/tmp}/rustup-init.exe\" https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe && \"\${TEMP:-/tmp}/rustup-init.exe\" -y --default-toolchain stable"
+      ;;
     *)
       row "Rust >= $MIN_RUST (rustup)" "${v:--}" "official script"
       step "Install Rust: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path" \
@@ -288,7 +321,7 @@ if want_tauri; then
     if ((ANDROID)); then check_rust_targets "Rust Android targets" aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android; fi
     if [[ "$OS" == "macos" ]]; then check_rust_targets "Rust iOS targets" aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim; fi
   else
-    manual "After rustup is installed, run this script again to add the Android/iOS Rust targets."
+    manual "The Android/iOS Rust targets are added automatically right after rustup is installed."
   fi
 fi
 check_ios
@@ -341,6 +374,17 @@ if ((${#STEPS[@]})); then
       say "==> ${SHOWN[$i]}"
       bash -c "${STEPS[$i]}" || say "warning: step $((i + 1)) did not finish; see the output above."
     done
+    # rustup only exists after its step above, so its targets are added here rather than asking for a second run.
+    if want_tauri && have rustup; then
+      targets=()
+      ((ANDROID)) && targets+=(aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android)
+      [[ "$OS" == "macos" ]] && targets+=(aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim)
+      if ((${#targets[@]})); then
+        say ""
+        say "==> Add Rust targets: ${targets[*]}"
+        rustup target add "${targets[@]}" || say "warning: adding Rust targets did not finish; run: rustup target add ${targets[*]}"
+      fi
+    fi
   else
     say "Nothing was installed."
   fi

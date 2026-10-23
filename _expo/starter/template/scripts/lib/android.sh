@@ -87,6 +87,29 @@ select_android_serial() {
   printf '%s\n' "${devices[$((selection - 1))]}"
 }
 
+# Waits until the target reports "device" and Android has finished booting (up to four minutes).
+wait_for_android_boot() {
+  local serial="$1" deadline=$((SECONDS + 240))
+  while ((SECONDS < deadline)); do
+    if [[ "$(adb -s "$serial" get-state 2>/dev/null | tr -d '\r')" == "device" ]] &&
+      [[ "$(adb -s "$serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
+
+# Restarts the local ADB server and waits for the target to come back online. A second ADB server of another
+# version (another tool's, or Gradle's own client) makes the running one exit and leaves emulators "offline".
+restart_adb_for_target() {
+  local serial="$1"
+  adb kill-server >/dev/null 2>&1 || true
+  sleep 2
+  adb start-server >/dev/null 2>&1 || fail "ADB could not start after an automatic restart."
+  wait_for_android_boot "$serial" || fail "$serial did not come back online after restarting ADB. Close other tools that use ADB (Android Studio device mirroring, phone-mirroring apps, other emulators) and run the command again."
+}
+
 # Boots an Android Virtual Device (asks which one when several exist) and waits for Android to finish starting.
 start_android_avd() {
   local avd="${APP_AVD:-}" selection="" deadline=0 log_file
@@ -122,8 +145,15 @@ start_android_avd() {
 
 # Windows only: maps the app folder to a short drive letter so CMake object paths fit in 260 characters.
 activate_short_windows_project_path() {
-  local drive="${APP_SUBST_DRIVE:-M:}" drive_letter source_root_win subst_output
+  local drive="${APP_SUBST_DRIVE:-}" drive_letter source_root_win subst_output candidate
   [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]] || return 0
+  if [[ -z "$drive" ]]; then
+    # Pick the first letter no volume, network share or earlier mapping uses (M: is often a mapped network drive).
+    for candidate in M R S T U V W X Y Z; do
+      if [[ ! -e "/${candidate,,}" ]]; then drive="${candidate}:"; break; fi
+    done
+    [[ -n "$drive" ]] || fail "No free drive letter found for the temporary Android build mapping. Set APP_SUBST_DRIVE to an unused letter such as Q:."
+  fi
   [[ "$drive" =~ ^[A-Za-z]:$ ]] || fail "APP_SUBST_DRIVE must look like M:."
   drive="${drive^^}"
   drive_letter="${drive:0:1}"
@@ -168,13 +198,21 @@ install_and_run_android_target() {
   [[ "$gradle_heap_mb" =~ ^[0-9]+$ ]] || fail "APP_GRADLE_HEAP_MB must be a whole number of megabytes."
 
   heading "Building and installing $package on $serial ($target_abi)"
-  (cd "$APP_ROOT/android" && ./gradlew \
-    -Dorg.gradle.jvmargs="-Xmx${gradle_heap_mb}m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" \
-    --max-workers=4 \
-    app:installDebug \
-    -PreactNativeDevServerPort=8081 \
-    -PreactNativeArchitectures="$target_abi" \
-    --console=plain)
+  run_gradle_install() {
+    (cd "$APP_ROOT/android" && ./gradlew \
+      -Dorg.gradle.jvmargs="-Xmx${gradle_heap_mb}m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" \
+      --max-workers=4 \
+      app:installDebug \
+      -PreactNativeDevServerPort=8081 \
+      -PreactNativeArchitectures="$target_abi" \
+      --console=plain)
+  }
+  if ! run_gradle_install; then
+    # The compile is cached, so a retry is quick. The usual cause is an ADB server mismatch or reset during the install.
+    info "The build or install failed. Restarting ADB and trying once more (compiled output is reused)."
+    restart_adb_for_target "$serial"
+    run_gradle_install || fail "Gradle failed again. Read the first error above; docs/LESSONS_LEARNED.md in the builder repository lists known causes."
+  fi
 
   adb -s "$serial" shell pm path "$package" >/dev/null || fail "Gradle finished but $package is not installed on $serial."
   info "Verified that $package is installed on $serial."

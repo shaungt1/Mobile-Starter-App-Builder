@@ -19,16 +19,23 @@ bash start.sh install-prereqs --dry-run    # see the plan without changing anyth
 bash start.sh install-prereqs              # install (asks once)
 ```
 
+The installer shows its plan, asks once (`--yes` skips the question) and installs only what is missing. It works
+on a machine that has none of these tools. It never replaces a working `JAVA_HOME`, `ANDROID_HOME` or `NDK_HOME`.
+If Node.js is managed by nvm-windows it prints `nvm install` / `nvm use` instead of installing a second Node.js.
+If winget is not found it says so and gives the manual step; Bun and Rust do not need winget (they use their
+official installers). Git Bash sometimes starts without the folder that holds winget, so the script adds it
+for its own run.
+
 The installer uses these sources; the Windows package IDs come from the winget package repository.
 
 | Tool | Windows (winget ID) | macOS | Linux |
 | --- | --- | --- | --- |
 | Git | `Git.Git` | Xcode Command Line Tools | apt/dnf/pacman `git` |
 | Node.js LTS (22.18+) | `OpenJS.NodeJS.LTS` | `brew install node` | nodejs.org download (manual) |
-| Bun | `Oven-sh.Bun` | official script | official script |
+| Bun | official installer script (`irm bun.sh/install.ps1`) | official script | official script |
 | Java 17 JDK (Expo Android) | `Microsoft.OpenJDK.17` (ID not verified by this project; falls back to a manual step) | `brew install --cask microsoft-openjdk@17` | `openjdk-17-jdk` / `java-17-openjdk-devel` |
 | Android Studio | `Google.AndroidStudio` | `brew install --cask android-studio` | manual download to `/opt/android-studio` |
-| Rust (Tauri) | `Rustlang.Rustup` | official rustup script | official rustup script |
+| Rust (Tauri) | official `rustup-init.exe` (MSVC toolchain), then the Android Rust targets in the same run | official rustup script | official rustup script |
 | C++ build tools (Tauri, Windows) | `Microsoft.VisualStudio.BuildTools` with the VCTools workload | Xcode Command Line Tools | WebKitGTK 4.1 and build packages |
 | iOS (Mac only) | not possible | Xcode (App Store), `brew install cocoapods` | not possible |
 

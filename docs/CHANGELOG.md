@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-23 - First real Windows run
+
+### Fixed
+- Expo template pins and `bun.lock` refreshed to the current SDK 57 patch set; Expo Doctor now passes (21/21).
+- `bash start.sh setup --fix-expo` in generated Expo apps re-aligns Expo packages; a failing Doctor now says so.
+- Android launcher: free drive letter for the temporary short build path (a mapped network drive on `M:` broke it);
+  ADB restart and one Gradle retry when the install step fails with a connection reset.
+- `install-prereqs` no longer installs Node.js over nvm-windows; it finds winget and PowerShell when Git Bash's PATH
+  lacks them, installs Bun and Rust with their official installers, and adds the Android Rust targets in the same run.
+- README and agent instructions list what each platform needs and how it is installed.
+
+### Added
+- Expo template documents `docs/PERFORMANCE.md`, `docs/RUNNING_ON_DEVICES.md`, `docs/LOCAL_SETUP.md`.
+- `docs/LESSONS_LEARNED.md`: four new entries from the run, including an unresolved flapping-ADB problem.
+
+### Verified on Windows 11 (Git Bash, Bun 1.4.4, Node 23.11 first on the PATH; Node 22.14 is too old)
+- `bash start.sh verify`; an Expo app generated, installed and verified (Doctor, type check, lint, format, tests,
+  unused code); every Expo feature removed and added back with checks passing; an Expo app built for Android,
+  installed on the `Pixel_8` emulator and opened; a Tauri app generated, installed and verified with Rust
+  tests, then built for Android, installed and opened on the same emulator.
+- `install-prereqs` took the machine from Bun and Rust missing to every Tauri check READY in one run (Bun, Rust
+  1.99.1 and the four Android Rust targets).
+
 ## 2026-10-23 - Expo template features, LUMNI comparison, gap analysis
 
 ### Added

@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # Prepares a fresh checkout: checks the machine, installs the locked dependencies,
 # creates .env from .env.example without overwriting it, then runs every check.
-# Options: --skip-verify
+# Options: --skip-verify, --fix-expo (align Expo packages with the versions the installed SDK expects)
 set -Eeuo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/common.sh"
 
 skip_verify=0
+fix_expo=0
 for arg in "$@"; do
   case "$arg" in
     --skip-verify) skip_verify=1 ;;
+    --fix-expo) fix_expo=1 ;;
     *) fail "Unknown setup option: $arg" ;;
   esac
 done
@@ -32,6 +34,15 @@ if [[ -f .mobile-builder/lock-stale ]]; then
   rm -f .mobile-builder/lock-stale
 else
   bun install --frozen-lockfile
+fi
+
+if ((fix_expo)); then
+  # Expo publishes patch releases of an SDK continuously; Expo Doctor fails when installed packages lag them.
+  # `expo install --fix` rewrites the ranges, then a clean reinstall removes duplicate nested modules Bun can leave behind.
+  heading "Aligning packages with the installed Expo SDK"
+  bunx expo install --fix || info "expo install --fix reported an error; checking whether the packages were updated anyway."
+  node -e 'require("fs").rmSync("node_modules", { recursive: true, force: true, maxRetries: 10, retryDelay: 250 })'
+  bun install
 fi
 
 heading "Preparing local environment"

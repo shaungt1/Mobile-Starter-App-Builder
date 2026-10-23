@@ -10,6 +10,12 @@ iOS), and it calls Rust through typed commands for anything native.
 
 The table below lists what each target needs; `bash start.sh system` reports what this machine has.
 
+A machine that has none of these tools can be prepared with `bash start.sh install-prereqs --platform tauri` from the
+Mobile Starter App Builder repository that generated this app (it shows its plan and asks once), or by hand with
+`docs/reference/01-prerequisites.md` and `docs/reference/14-mobile.md`. Check before installing anything:
+`bash start.sh system` says what is already there. Prefer the Node.js 22.18+ that your version manager (nvm)
+provides over installing a second one.
+
 | Target | Needs |
 | --- | --- |
 | Browser preview | Node.js 22.18+, Bun, Git |

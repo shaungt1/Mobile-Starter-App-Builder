@@ -8,7 +8,7 @@ usage() {
   cat <<'USAGE'
 Usage: bash start.sh [command]
 
-  setup              Check the machine, install locked dependencies, create .env, verify
+  setup [--fix-expo] Check the machine, install locked dependencies, create .env, verify (--fix-expo aligns Expo packages with the SDK)
   verify             Expo Doctor, typecheck, lint, format, unit tests, unused-code check
   run web            Browser (responsive-device mode for phone sizes)
   run go             Expo Go over the local network (standard Expo SDK only)

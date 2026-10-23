@@ -23,7 +23,19 @@ Each stage ends with a check; do not start the next stage while the current chec
 2. **Machine** (skill `mobile-host-setup`). `bash start.sh doctor --platform <p>`. Install anything missing
    with `bash start.sh install-prereqs --platform <p>` and, for Android, `bash start.sh android-setup`.
    Some steps are manual (Android Studio's first-launch wizard, Xcode from the App Store); tell the user
-   exactly which and continue with what is possible.
+   exactly which and continue with what is possible. Rules for this stage:
+   - Check before installing. Never assume a tool is missing; `doctor` and `--version` decide, and only
+     what is reported missing or too old is installed. Show `install-prereqs --dry-run` first.
+   - Installing system software needs the user's approval for that action; `--yes` is for after they gave it.
+   - A machine with nothing installed is supported: the script installs Git, Node.js, Bun, Java 17 (Expo),
+     Android Studio, Rust with the Android targets (Tauri), the Windows C++ build tools and Homebrew-based
+     tools, and it prints the manual steps it cannot do (Android Studio's first launch, Xcode, accounts).
+   - It never replaces a working `JAVA_HOME`, `ANDROID_HOME` or `NDK_HOME`, and with nvm-windows it prints
+     `nvm install` / `nvm use` instead of installing a second Node.js. Switching Node versions with nvm
+     removes npm-global tools of the old version (Bun installed with `npm -g` included); the script
+     reinstalls Bun with its own installer, which survives the switch.
+   - After installing on Windows, new tools may need a new Git Bash window. If winget is not found the
+     script says so and gives a manual step; do not improvise another installer.
 3. **Generate** (skill `mobile-generate`).
    `bash start.sh new --platform <p> --plan <plan> --target <folder>` or `--repo <url> [--target <clone folder>]`,
    with `--yes`. Add `--install` to run setup, `--commit` for the first commit, and `--push` only when the

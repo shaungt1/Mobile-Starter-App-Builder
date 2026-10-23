@@ -12,7 +12,10 @@ if [[ "${APP_SKIP_DOCTOR:-0}" == "1" ]]; then
   info "Expo Doctor skipped (APP_SKIP_DOCTOR=1)."
 else
   heading "Expo Doctor"
-  bunx expo-doctor
+  bunx expo-doctor || {
+    echo "Expo Doctor failed. If it lists packages behind the SDK patch set, run: bash start.sh setup --fix-expo" >&2
+    exit 1
+  }
 fi
 heading "TypeScript"
 bun run typecheck

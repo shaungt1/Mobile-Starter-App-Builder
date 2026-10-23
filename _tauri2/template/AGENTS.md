@@ -13,6 +13,11 @@ bash start.sh verify
 
 If `verify` fails on a clean checkout, fix that first and change nothing else.
 
+If `system` reports a missing tool, do not assume it is absent: confirm with the tool's `--version`, then ask the user before
+installing. The builder repository's `bash start.sh install-prereqs --platform tauri` installs everything this app needs
+(Bun, Node.js, Rust with the Android targets, the OS build tools), and `docs/reference/01-prerequisites.md` is the manual
+equivalent.
+
 ## Rules
 
 1. Keep the interface working in a plain browser: guard Rust calls with `isTauri()` from `src/lib/ipc.ts`.

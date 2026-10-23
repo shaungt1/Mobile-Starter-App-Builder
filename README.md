@@ -47,6 +47,38 @@ paste a prompt from [`prompts/`](prompts/), or ask: "Read AGENT_START.md, then b
 <repository URL>". The agent follows [`AGENT_START.md`](AGENT_START.md) and the skills in
 [`.claude/skills/`](.claude/skills/).
 
+## What a developer needs on the machine
+
+A developer who has none of the tools can still start: run `bash start.sh doctor` to see what is missing, then
+`bash start.sh install-prereqs` to install it (it shows its plan and asks once; `--dry-run` only shows the
+plan). The table below lists what each platform needs. "Installed by the script" means
+`install-prereqs` installs it; the Android SDK packages and the emulator come from `android-setup` after
+Android Studio's first launch.
+
+| Need | Expo | Tauri 2 | Installed by the script |
+| --- | --- | --- | --- |
+| Git (Git Bash on Windows) | yes | yes | yes (winget, Xcode tools, apt/dnf/pacman) |
+| Node.js 22.18 or newer | yes | yes | yes; with nvm-windows it prints the `nvm` commands instead |
+| Bun | yes | yes | yes (official installer) |
+| Java 17 JDK | for Android | Android Studio's bundled JDK is enough | yes (Expo) |
+| Android Studio, SDK, NDK, emulator | for Android | for Android | Studio yes; SDK, NDK and emulator through `android-setup` |
+| Rust (rustup) and the Android Rust targets | no | yes | yes, in one run |
+| C++ build tools (Windows), Xcode tools (macOS), WebKitGTK packages (Linux) | no | yes | yes |
+| Xcode and CocoaPods (macOS) | for iOS | for iOS | CocoaPods yes; Xcode is a manual App Store step |
+| Watchman (macOS) | recommended | no | yes |
+| Expo account and Apple or Google developer accounts | for cloud builds and stores | for stores | no (accounts are yours to create) |
+
+The same three commands work for a person and for an agent, so the quickest path is:
+
+```bash
+bash start.sh doctor --platform tauri        # or expo
+bash start.sh install-prereqs --platform tauri --yes
+bash start.sh android-setup --set-env        # only for Android; after Android Studio's first launch
+```
+
+Manual instructions for every tool, including Windows, macOS and Linux package names, are in
+[`QUICKSTART.md`](QUICKSTART.md); an Expo app also carries `docs/LOCAL_SETUP.md`.
+
 ## Repository layout
 
 | Path | Purpose |
@@ -87,7 +119,7 @@ The status column below separates what is finished and tested from what is plann
 | Tauri mobile capability installer (13 plugins + Consta) | Done | Mobile-only plugins guarded with `#[cfg(mobile)]`; idempotent; unit-tested. |
 | Generate into a new GitHub repository, commit and push | Done | Tested against a local bare repository. |
 | Machine setup: doctor, install-prereqs (winget / Homebrew / apt-dnf-pacman), Android SDK + emulator | Done | Dry runs tested on Linux; installs on Windows and macOS use the package IDs listed in `QUICKSTART.md`. |
-| Real Android and iOS builds of generated apps on a developer machine | Next | Needs a machine with Android Studio (and a Mac for iOS); record results in `docs/LESSONS_LEARNED.md`. |
+| Real Android and iOS builds of generated apps on a developer machine | In progress | On 2026-10-23 a Tauri app and an Expo app were each built, installed and opened on a Windows x86_64 emulator (Expo's stable Metro session, a USB phone and ARM devices are still open; see `docs/GAP_ANALYSIS.md` O-01); iOS needs a Mac or an EAS build. |
 | Expo template feature switches: off/on, remove, add back, upstream onboarding funnel, choice in the plan | Done | Every feature removed and re-added on an installed app with all checks passing and a byte-identical result; funnel migration tested on PostgreSQL with row-level security. |
 | Expo capability catalog extended with the packages LUMNI proved (16 new entries) | Done | Install and device-test each in the app that needs it. |
 | AI section: on-device and cloud SDKs, OCR, detection, camera vision, server-proxy pattern | Next | Requested; see `docs/GAP_ANALYSIS.md` O-09. |
