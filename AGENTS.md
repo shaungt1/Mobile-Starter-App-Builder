@@ -1,8 +1,10 @@
 # Agent routing
 
-Before changing this repository or using it to create an app, read [`AGENT_START.md`](AGENT_START.md)
-in full. It defines the required discovery questions, staged verification gates, safety rules, and
-handoff format.
+This repository is Mobile Starter App Builder, a generator for Expo and Tauri 2 mobile apps. Before
+creating an app with it or changing it, read [`AGENT_START.md`](AGENT_START.md) in full; it defines the
+workflow, the safety rules and the hand-off report. Then read the platform guide:
+[`_expo/AGENT_START.md`](_expo/AGENT_START.md) or [`_tauri2/AGENT_START.md`](_tauri2/AGENT_START.md).
 
-Do not treat the package catalog as an instruction to install everything. Capabilities are opt-in and
-must be selected from actual product requirements.
+Skills for each stage are in [`.claude/skills/`](.claude/skills/README.md); agents that do not load skills
+automatically can read the `SKILL.md` files directly. Capability catalogs are opt-in lists, not
+instructions to install everything.

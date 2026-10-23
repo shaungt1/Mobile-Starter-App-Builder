@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "description": "Opt-in capabilities for Tauri 2 mobile apps. Facts (packages, registration, permissions, iOS keys) come from docs/reference/06-plugins.md and 10-plugin-catalog.md, which were written from the official Tauri plugin docs and plugin sources. 'scope' is 'all' (every platform) or 'mobile' (Android and iOS only; registered under #[cfg(mobile)] so the desktop preview still compiles).",
+  "capabilities": [
+    {
+      "id": "haptics",
+      "name": "Haptic feedback and vibration",
+      "scope": "mobile",
+      "crate": "tauri-plugin-haptics",
+      "npm": "@tauri-apps/plugin-haptics@^2.4.2",
+      "register": "tauri_plugin_haptics::init()",
+      "permissions": [
+        "haptics:allow-impact-feedback",
+        "haptics:allow-notification-feedback",
+        "haptics:allow-selection-feedback",
+        "haptics:allow-vibrate"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "Android phones without a vibration motor ignore it; never make haptics the only signal."
+      ]
+    },
+    {
+      "id": "barcode-scanner",
+      "name": "QR code and barcode scanning with the camera",
+      "scope": "mobile",
+      "crate": "tauri-plugin-barcode-scanner",
+      "npm": "@tauri-apps/plugin-barcode-scanner@^2.5.3",
+      "register": "tauri_plugin_barcode_scanner::init()",
+      "permissions": [
+        "barcode-scanner:allow-scan",
+        "barcode-scanner:allow-cancel",
+        "barcode-scanner:allow-check-permissions",
+        "barcode-scanner:allow-request-permissions"
+      ],
+      "iosPlist": {
+        "NSCameraUsageDescription": "Scan QR codes and barcodes."
+      },
+      "notes": [
+        "The Android manifest entries come from the plugin.",
+        "scan({ windowed: true }) makes the web view transparent; design the screen for it."
+      ]
+    },
+    {
+      "id": "biometric",
+      "name": "Fingerprint / Face ID prompt",
+      "scope": "mobile",
+      "crate": "tauri-plugin-biometric",
+      "npm": "@tauri-apps/plugin-biometric@^2.5.0",
+      "register": "tauri_plugin_biometric::Builder::new().build()",
+      "permissions": [
+        "biometric:default"
+      ],
+      "iosPlist": {
+        "NSFaceIDUsageDescription": "Confirm it is you."
+      },
+      "notes": [
+        "Proves the device owner is present; it is not an account login."
+      ]
+    },
+    {
+      "id": "geolocation",
+      "name": "Device location",
+      "scope": "mobile",
+      "crate": "tauri-plugin-geolocation",
+      "npm": "@tauri-apps/plugin-geolocation@^2.5.0",
+      "register": "tauri_plugin_geolocation::init()",
+      "permissions": [
+        "geolocation:allow-check-permissions",
+        "geolocation:allow-request-permissions",
+        "geolocation:allow-get-current-position",
+        "geolocation:allow-watch-position"
+      ],
+      "iosPlist": {
+        "NSLocationWhenInUseUsageDescription": "Show content near you."
+      },
+      "notes": [
+        "Request permission only when the feature is used.",
+        "Add <uses-feature android:name=\"android.hardware.location.gps\" android:required=\"true\" /> if the app cannot work without GPS."
+      ]
+    },
+    {
+      "id": "nfc",
+      "name": "Read NFC tags",
+      "scope": "mobile",
+      "crate": "tauri-plugin-nfc",
+      "npm": "@tauri-apps/plugin-nfc@^2.4.2",
+      "register": "tauri_plugin_nfc::init()",
+      "permissions": [
+        "nfc:default"
+      ],
+      "iosPlist": {
+        "NFCReaderUsageDescription": "Read NFC tags."
+      },
+      "notes": [
+        "iOS also needs the 'Near Field Communication Tag Reading' entitlement (Xcode capability) and iOS 14+.",
+        "Writing tags needs nfc:allow-write."
+      ]
+    },
+    {
+      "id": "notification",
+      "name": "Local notifications",
+      "scope": "all",
+      "crate": "tauri-plugin-notification",
+      "npm": "@tauri-apps/plugin-notification@^2.7.0",
+      "register": "tauri_plugin_notification::init()",
+      "permissions": [
+        "notification:default"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "Create Android channels before a notification references them.",
+        "Remote push notifications are not part of this plugin."
+      ]
+    },
+    {
+      "id": "sql",
+      "name": "Local SQLite database",
+      "scope": "all",
+      "crate": "tauri-plugin-sql",
+      "crateFeatures": [
+        "sqlite"
+      ],
+      "npm": "@tauri-apps/plugin-sql@^2.6.0",
+      "register": "tauri_plugin_sql::Builder::default().build()",
+      "permissions": [
+        "sql:default",
+        "sql:allow-execute"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "Connection strings look like sqlite:app.db (relative to the app config folder).",
+        "Add migrations with .add_migrations(...) in lib.rs (docs/reference/09-agent-recipes.md)."
+      ]
+    },
+    {
+      "id": "http",
+      "name": "HTTP client in Rust (bypasses web-view CORS)",
+      "scope": "all",
+      "crate": "tauri-plugin-http",
+      "npm": "@tauri-apps/plugin-http@^2.8.3",
+      "register": "tauri_plugin_http::init()",
+      "permissions": [
+        {
+          "identifier": "http:default",
+          "allow": [
+            {
+              "url": "https://*.example.com"
+            }
+          ]
+        }
+      ],
+      "iosPlist": {},
+      "notes": [
+        "Replace the example URL scope in src-tauri/capabilities/default.json with the exact hosts the app calls."
+      ]
+    },
+    {
+      "id": "os",
+      "name": "Operating-system information",
+      "scope": "all",
+      "crate": "tauri-plugin-os",
+      "npm": "@tauri-apps/plugin-os@^2.4.0",
+      "register": "tauri_plugin_os::init()",
+      "permissions": [
+        "os:default"
+      ],
+      "iosPlist": {},
+      "notes": []
+    },
+    {
+      "id": "dialog",
+      "name": "Native file pickers and message boxes",
+      "scope": "all",
+      "crate": "tauri-plugin-dialog",
+      "npm": "@tauri-apps/plugin-dialog@^2.8.3",
+      "register": "tauri_plugin_dialog::init()",
+      "permissions": [
+        "dialog:allow-open",
+        "dialog:allow-message"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "No folder picker on Android or iOS."
+      ]
+    },
+    {
+      "id": "clipboard",
+      "name": "Copy and paste text",
+      "scope": "all",
+      "crate": "tauri-plugin-clipboard-manager",
+      "npm": "@tauri-apps/plugin-clipboard-manager@^2.5.0",
+      "register": "tauri_plugin_clipboard_manager::init()",
+      "permissions": [
+        "clipboard-manager:allow-write-text",
+        "clipboard-manager:allow-read-text"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "Only plain text on Android and iOS."
+      ]
+    },
+    {
+      "id": "upload",
+      "name": "File upload and download over HTTP",
+      "scope": "all",
+      "crate": "tauri-plugin-upload",
+      "npm": "@tauri-apps/plugin-upload@^2.5.0",
+      "register": "tauri_plugin_upload::init()",
+      "permissions": [
+        "upload:default"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "The plugin has no URL scope; validate destinations in your own code."
+      ]
+    },
+    {
+      "id": "websocket",
+      "name": "WebSocket client in Rust",
+      "scope": "all",
+      "crate": "tauri-plugin-websocket",
+      "npm": "@tauri-apps/plugin-websocket@^2.5.0",
+      "register": "tauri_plugin_websocket::init()",
+      "permissions": [
+        "websocket:default"
+      ],
+      "iosPlist": {},
+      "notes": [
+        "The plugin has no URL scope."
+      ]
+    },
+    {
+      "id": "consta-ui",
+      "name": "Consta UIKit (secondary component library; interface only)",
+      "scope": "ui",
+      "npm": "@consta/uikit@^5.33.3",
+      "npmPeers": [
+        "@consta/icons@^1.7.1",
+        "@bem-react/classname@^1.6.0",
+        "@bem-react/classnames@^1.3.10",
+        "@reatom/core@^3.10.1",
+        "@reatom/npm-react@^3.10.6",
+        "compute-scroll-into-view@^3.1.1",
+        "date-fns@^4.1.0",
+        "react-dropzone@^14.2.3",
+        "react-imask@^7.2.1",
+        "react-textarea-autosize@^8.5.3",
+        "react-transition-group@^4.4.5"
+      ],
+      "permissions": [],
+      "iosPlist": {},
+      "notes": [
+        "Installs the package and its peer dependencies only; shadcn/ui stays the primary kit.",
+        "Wrap only the screens that use it in <Theme preset={presetGpnDefault}> from @consta/uikit/Theme.",
+        "Consta UIKit is a general (desktop-first) React kit; its npm maintainers include the Gazprom Neft design team account (design@gazprom-neft.ru) and its package declares no license field. Review licensing and fit before relying on it."
+      ]
+    }
+  ]
+}

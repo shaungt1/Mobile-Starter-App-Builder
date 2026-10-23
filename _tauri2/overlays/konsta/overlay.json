@@ -1,0 +1,6 @@
+{
+  "description": "Konsta UI: Tailwind-based mobile components with the iOS or Material Design look, for the app shell and screens. shadcn/ui components stay available for custom pieces.",
+  "package": { "dependencies": { "konsta": "^5.5.0" } },
+  "appendCss": { "file": "src/styles/globals.css", "after": "@import \"tw-animate-css\";", "text": "/* Konsta UI after shadcn tokens: Konsta decides what bg-primary means (docs/reference/UI_KITS.md, section 9). */\n@import \"konsta/react/theme.css\";" },
+  "placeholders": ["__UI_THEME__"]
+}

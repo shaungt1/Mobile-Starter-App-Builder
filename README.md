@@ -1,80 +1,99 @@
-# Expo App Starter Playbook
+# Mobile Starter App Builder
 
-A reusable, agent-friendly system for generating an independently owned Expo application. It combines
-a maintained local template, a pinned upstream snapshot, one project-plan contract, capability
-selection, host checks, and guarded release commands.
+Mobile Starter App Builder is a reusable generator for Android and iOS applications. It holds two
+complete, tested app platforms, scripts that prepare a developer's machine (including Android emulators),
+and instructions written for both people and AI coding agents. Pointed at an empty folder or at a newly
+created GitHub repository, it copies in a working app with its interface kit, gestures, animation,
+theming, scripts, documentation and agent rules, then installs, sets up and verifies it. The builder
+itself is never copied into the app and never changes, so the same checkout produces any number of apps.
 
-The runnable generic starter lives in `starter/template`; generated apps copy it and receive their own
-Git history. LUMNI remains a proven implementation reference, not a runtime dependency.
+## The two platforms
 
-## Start here
+Each platform lives in its own top-level folder and can be used on its own. The table below summarizes
+what each produces; `_tauri2/README.md` compares them in more detail.
 
-- Human quick start: [`QUICKSTART.md`](QUICKSTART.md)
-- Agent entry point: [`AGENT_START.md`](AGENT_START.md)
-- Full technical guide: [`expo-app-starter-playbook.md`](expo-app-starter-playbook.md)
-- Owned template: [`starter/README.md`](starter/README.md)
-- Template adoption history: [`docs/TEMPLATE_ADOPTION_PLAN.md`](docs/TEMPLATE_ADOPTION_PLAN.md)
+| Folder | Platform | Interface | What a new app starts with |
+| --- | --- | --- | --- |
+| [`_expo/`](_expo/README.md) | Expo (React Native) | NativeWind + React Native Reusables, the shadcn/ui component API for React Native | Owned, pinned template derived from the MIT-licensed Simonstorms expo-app-template: Expo Router, auth (Supabase), paywall (RevenueCat), analytics (PostHog), notifications, local SQLite + Drizzle, EAS profiles, Android/iOS launch scripts. A second path creates a clean app on the newest Expo SDK with the same UI foundation. |
+| [`_tauri2/`](_tauri2/README.md) | Tauri 2 (Rust core + web view) | React with Vite (default) or Next.js, Tailwind CSS 4, shadcn/ui; Konsta UI (iOS/Material look) as an alternative; Consta UIKit as an add-on | Phone-first shell, three starter screens, typed Rust commands, deny-by-default permissions, mobile plugin catalog (haptics, barcode scanner, biometrics, location, NFC, notifications, SQLite, HTTP, and more). |
 
-## Fastest path
+Both platforms read the same project plan format (name, slug, scheme, bundle ID, theme colors as HSL
+values, capabilities), so one plan describes an app on either platform.
 
-From Git Bash, macOS, or Linux:
+## Quick start (Windows Git Bash, macOS or Linux)
 
-```bash
-bash start.sh system
-cp starter/project-plan.example.json ../my-app-plan.json
-# Edit the plan.
-bash start.sh create ../my-app --plan ../my-app-plan.json --install
-cd ../my-app
-bash start.sh run web
-```
-
-The generator copies the owned template, applies identity and theme, records the plan/source,
-initializes an independent `main` branch, and optionally installs and verifies. It refuses non-empty
-targets and does not create or push a remote. The older `bootstrap` command remains available when a
-fresh clone of the preserved upstream project is specifically wanted.
-
-For an existing app:
+The four steps below take a machine from nothing to a running app. Every command can be run by a person
+or by an agent; anything that installs software shows its plan and asks once (`--yes` skips the question).
 
 ```bash
-bash start.sh setup ../existing-app
-bash start.sh verify ../existing-app
-bash start.sh capabilities list
+# 1. Check the machine, then install whatever is missing
+bash start.sh doctor
+bash start.sh install-prereqs            # add --platform expo|tauri to limit it, --dry-run to only look
+bash start.sh android-setup              # after Android Studio's first launch: SDK, NDK, emulator
+
+# 2. Create an app (asks for anything not given)
+bash start.sh new
+#    or fully specified, into a new empty GitHub repository, committed and pushed:
+bash start.sh new --platform expo --repo https://github.com/<org>/<app>.git \
+  --name "Field Notes" --bundle-id com.example.fieldnotes --install --commit --push --yes
+
+# 3. Work inside the new app (it is a separate project from now on)
+cd ../<app> && bash start.sh            # menu: run on web, Android emulator, USB phone, iOS, ...
 ```
 
-## What is included
+`QUICKSTART.md` explains each step and the manual equivalents. With an agent, open this repository and
+paste a prompt from [`prompts/`](prompts/), or ask: "Read AGENT_START.md, then build a new Tauri app in
+<repository URL>". The agent follows [`AGENT_START.md`](AGENT_START.md) and the skills in
+[`.claude/skills/`](.claude/skills/).
+
+## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `start.sh` | Entry point for generation, setup, verification, running, capabilities, and releases. |
-| `starter/upstream-snapshot/` | Complete pinned Simonstorms source, minus nested Git metadata. |
-| `starter/template/` | Generic owned Expo app with UI, local SQL, optional services, scripts, and docs. |
-| `starter/generator/` | Deterministic plan validation, copying, identity, and theme application. |
-| `scripts/startup/` | Setup automation for existing or direct-upstream projects. |
-| `config/capabilities.json` | Opt-in UI, auth, sync, payments, analytics, device, IoT, camera, audio, sensor, and AI catalog. |
-| `code/` | Smaller drop-in reference files for existing projects. |
+| `start.sh` | Root entry point: `new`, `doctor`, `install-prereqs`, `android-setup`, `expo ...`, `tauri ...`, `verify`. |
+| `scripts/` | Shared machine scripts and the `new` command; `scripts/lib/target.mjs` holds the rules that protect target folders. |
+| `_expo/` | Expo platform: owned template, pinned upstream snapshot, generator, clean-app path, capability catalog, release scripts, playbook. |
+| `_tauri2/` | Tauri 2 platform: template, Next.js and Konsta overlays, generator, capability catalog and installer, reference docs. |
+| `AGENT_START.md`, `AGENTS.md`, `CLAUDE.md` | Agent entry points and workflow rules. |
+| `.claude/skills/` | One skill per job (intake, machine setup, generate, screens, capabilities, devices, troubleshoot, hand-off). |
+| `prompts/` | Copy-and-paste prompts for common requests. |
+| `docs/LESSONS_LEARNED.md` | Every setup problem found so far, its cause and the fix the scripts apply. |
+| `tests/` | Builder tests; each platform also has its own `tests/`. |
 
-## Core rules
+## Rules the builder enforces
 
-1. Keep the owned template and generator testable; never edit the upstream snapshot as application code.
-2. Install one capability at a time and verify after each native/config change.
-3. Use a development build for custom native modules and physical devices for hardware evidence.
-4. Keep public client configuration separate from server secrets.
-5. Never publish, submit, overwrite, or force-push without explicit authority.
-6. Preserve the upstream MIT license and pinned source record.
+1. A target must be new, empty, or a fresh repository holding only `.git`, `.github`, README, LICENSE and
+   ignore files. Those files are kept; the template's versions are placed beside them or merged in.
+2. Nothing is pushed, published or submitted unless the command says so (`--push`, guarded release
+   commands with explicit confirmation).
+3. Optional features are installed one capability at a time and verified after each.
+4. Server secrets never go into the app; `.env.example` files list only public, client-safe values.
 
-## Requirements
+## Roadmap
 
-- Git
-- Node.js 22.18 or newer
-- Bun
-- Git Bash on Windows, or Bash on macOS/Linux
-- Optional: Android Studio/JDK for local Android builds, macOS/Xcode for local iOS builds, and an Expo
-  account for EAS builds/updates
+The status column below separates what is finished and tested from what is planned. Items marked
+"planned" are not implemented.
 
-Run `bash start.sh system` for a read-only host report.
+| Area | Status | Notes |
+| --- | --- | --- |
+| Expo owned template (SDK 57) with auth, paywall, analytics, SQLite, notifications, EAS | Done | Verified: install, TypeScript, lint, format, unit tests, unused-code check. Expo Doctor needs the Expo API and runs on developer machines. |
+| Expo Android launchers from LUMNI (emulator, USB, iOS Simulator, web, Expo Go, dev client) | Done | SDK/Java discovery, ADB restart, per-ABI builds, Gradle heap, Windows short-path CMake fix; the config plugin was tested against a real `expo prebuild`. |
+| Expo clean path on the newest SDK (58) + NativeWind + React Native Reusables | Done | Verified with TypeScript and a full web export. |
+| Tauri 2 template: Vite or Next.js, shadcn/ui or Konsta, Consta add-on | Done | All four combinations verified (install, TypeScript, Biome, Vitest, production build); Rust tests and Clippy pass. |
+| Tauri mobile capability installer (13 plugins + Consta) | Done | Mobile-only plugins guarded with `#[cfg(mobile)]`; idempotent; unit-tested. |
+| Generate into a new GitHub repository, commit and push | Done | Tested against a local bare repository. |
+| Machine setup: doctor, install-prereqs (winget / Homebrew / apt-dnf-pacman), Android SDK + emulator | Done | Dry runs tested on Linux; installs on Windows and macOS use the package IDs listed in `QUICKSTART.md`. |
+| Real Android and iOS builds of generated apps on a developer machine | Next | Needs a machine with Android Studio (and a Mac for iOS); record results in `docs/LESSONS_LEARNED.md`. |
+| Upgrade the owned Expo template from SDK 57 to 58 | Planned | Follow `_expo/docs/TEMPLATE_ADOPTION_PLAN.md`, phase 6. |
+| Tauri modules: auth (OIDC), secure storage, push notifications, auto-update for stores | Planned | Can be ported from Desktop Starter App Builder's Tauri modules. |
+| PowerShell entry point (`start.ps1`) | Planned | Git Bash is the supported Windows shell today. |
+| Vue.js frontends | Not planned now | Deliberately out of scope. |
+| Browser-extension sibling builder | Planned elsewhere | Same pattern, separate repository. |
 
-## Credits and license
+## Credits and licenses
 
-Generated applications are derived from Simonstorms' MIT-licensed Expo App Template. Preserve its
-`LICENSE`, pinned source record, and attribution. Review all target-application licenses before
-distribution.
+The Expo template is derived from Simonstorms' MIT-licensed expo-app-template
+(`_expo/starter/SOURCE.json` records the pinned commit); generated Expo apps keep its `LICENSE`. The
+Tauri template follows the structure of create-tauri-app's React + TypeScript template. Konsta UI and
+shadcn/ui are MIT-licensed; Consta UIKit's npm package declares no license, which is why it is an opt-in
+capability. Review the licenses of everything an app ships before distributing it.
