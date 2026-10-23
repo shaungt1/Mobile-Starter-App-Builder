@@ -17,7 +17,7 @@ Prepare this machine
   android-setup [--dry-run] [--set-env]         Android SDK packages, NDK and an emulator
 
 Platform toolkits
-  expo <command>                Expo toolkit: create, setup, verify, run, capabilities, release (expo help)
+  expo <command>                Expo toolkit: create, setup, verify, run, capabilities, feature, release (expo help)
   tauri <command>               Tauri 2 toolkit: create, capability, verify (tauri help)
 
 Builder maintenance

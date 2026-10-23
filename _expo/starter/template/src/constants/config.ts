@@ -1,5 +1,7 @@
 import * as Device from "expo-device";
 
+import { features } from "./features";
+
 export const config = {
   env: process.env.EXPO_PUBLIC_ENV ?? "development",
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",
@@ -12,12 +14,17 @@ export const config = {
   posthogSessionReplay: process.env.EXPO_PUBLIC_POSTHOG_SESSION_REPLAY === "true",
 } as const;
 
-export const hasSupabase = config.supabaseUrl.length > 0 && config.supabaseAnonKey.length > 0;
+export const hasSupabase =
+  features.auth && config.supabaseUrl.length > 0 && config.supabaseAnonKey.length > 0;
 
 export const hasRevenueCat =
-  Device.isDevice && (config.revenueCatIosKey.length > 0 || config.revenueCatAndroidKey.length > 0);
+  features.payments &&
+  Device.isDevice &&
+  (config.revenueCatIosKey.length > 0 || config.revenueCatAndroidKey.length > 0);
 
-export const hasPostHog = config.posthogKey.length > 0;
+export const hasPostHog = features.analytics && config.posthogKey.length > 0;
+
+export const hasNotifications = features.notifications;
 
 type ProductionService = "supabase" | "revenuecat" | "posthog";
 

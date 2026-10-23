@@ -18,6 +18,7 @@ Usage: bash start.sh [command]
   run ios            Build, install and launch in the iOS Simulator (macOS only)
   run dev-client     Metro for an already-installed development build
   theme              Apply PROJECT_PLAN.json theme tokens to global.css
+  feature [list|on|off ID]  Switch auth, payments, analytics or notifications on/off (docs/FEATURES.md)
   system             Read-only machine report
   devices            Connected phones, emulators, simulators and serial ports
   config             App identity and environment checks
@@ -34,6 +35,7 @@ dispatch() {
     verify) bash "$S/verify.sh" "$@" ;;
     run) bash "$S/run.sh" "$@" ;;
     theme) node "$S/apply-theme.mjs" "$@" ;;
+    feature) node "$S/feature-flags.mjs" "$@" ;;
     system) node "$S/check-system.mjs" ;;
     devices) node "$S/check-devices.mjs" ;;
     config) node "$S/check-config.mjs" ;;

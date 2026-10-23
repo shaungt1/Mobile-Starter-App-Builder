@@ -1,0 +1,22 @@
+# Checks the builder itself on every push and pull request: unit tests for both generators,
+# the feature tool and the shared target rules, Bash syntax, ShellCheck and JSON validity.
+# The full run (bash start.sh verify --full) installs apps and compiles Rust; run it locally.
+name: Verify builder
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bash scripts/verify-builder.sh

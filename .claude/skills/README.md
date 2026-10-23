@@ -13,6 +13,7 @@ The table below lists the skills in the order a new-app task uses them.
 | `mobile-generate` | Generate into a folder or new repository, set up, verify. |
 | `mobile-run-device` | Launch on web, Expo Go, emulator, USB phone, iOS Simulator or Tauri desktop. |
 | `mobile-capability` | Add one optional feature, then verify and device-test it. |
+| `mobile-features` | Switch off, remove or add back an Expo template feature (auth, payments, analytics, notifications, local database, device modules, updates, onboarding funnel). |
 | `mobile-screens` | Build the planned screens with mock data first. |
 | `mobile-troubleshoot` | Whenever a command fails. |
 | `mobile-handoff` | The final report. |

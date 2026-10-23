@@ -1,0 +1,200 @@
+import { Picker } from "@react-native-picker/picker";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useDerivedValue,
+  withSpring,
+} from "react-native-reanimated";
+
+import { GlassSurface } from "@/components/ui/glass";
+import { TitleBlock } from "@/components/ui/title-block";
+import { content } from "@/constants/content";
+import { colors, text, withAlpha } from "@/constants/theme";
+
+import { OnboardingScaffold } from "../components/onboarding-scaffold";
+import { useFlow } from "../hooks/use-flow";
+import { useOnboarding } from "../store";
+
+const wheelValues = Array.from({ length: 40 }, (_, index) => index + 1);
+
+const toggleSpring = { mass: 1, stiffness: 386, damping: 32 };
+
+export default function HabitsScreen() {
+  const variant = useOnboarding((state) => state.variant);
+  const yearsOfUse = useOnboarding((state) => state.yearsOfUse);
+  const pouchesPerDay = useOnboarding((state) => state.pouchesPerDay);
+  const set = useOnboarding((state) => state.set);
+  const flow = useFlow("habits");
+
+  return (
+    <OnboardingScaffold flow={flow} ctaTitle={content.common.continue}>
+      <View style={styles.container}>
+        <TitleBlock title={content.habits.title} subtitle={content.habits.subtitle} />
+        <View style={styles.topSpacer} />
+        <TypeToggle
+          isLoose={variant === "loose"}
+          onToggle={() => set("variant", variant === "loose" ? "pouches" : "loose")}
+        />
+        <View style={styles.headers}>
+          <Text style={[text.row, styles.headerYears]}>{content.habits.headerYears}</Text>
+          <Text style={[text.row, styles.headerPerDay]}>{content.habits.headerPerDay}</Text>
+        </View>
+        <View style={styles.wheels}>
+          <Picker<number>
+            selectedValue={yearsOfUse}
+            onValueChange={(value) => set("yearsOfUse", value)}
+            itemStyle={styles.pickerItem}
+            style={styles.pickerYears}
+          >
+            {wheelValues.map((value) => (
+              <Picker.Item
+                key={value}
+                label={
+                  value === 1
+                    ? `1 ${content.habits.yearSingular}`
+                    : `${value} ${content.habits.yearPlural}`
+                }
+                value={value}
+              />
+            ))}
+          </Picker>
+          <Picker<number>
+            selectedValue={pouchesPerDay}
+            onValueChange={(value) => set("pouchesPerDay", value)}
+            itemStyle={styles.pickerItem}
+            style={styles.pickerPerDay}
+          >
+            {wheelValues.map((value) => (
+              <Picker.Item key={value} label={`${value}`} value={value} />
+            ))}
+          </Picker>
+        </View>
+        <View style={styles.bottomSpacer} />
+      </View>
+    </OnboardingScaffold>
+  );
+}
+
+function TypeToggle({ isLoose, onToggle }: { isLoose: boolean; onToggle: () => void }) {
+  const progress = useDerivedValue(() => withSpring(isLoose ? 1 : 0, toggleSpring));
+
+  const pouchesStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(progress.value, [0, 1], [colors.ink, "#D6D6D6"]),
+  }));
+  const looseStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(progress.value, [0, 1], ["#D6D6D6", colors.ink]),
+  }));
+  const knobStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -10 + progress.value * 20 }],
+  }));
+  const borderStyle = useAnimatedStyle(() => ({ opacity: 1 - progress.value }));
+
+  return (
+    <Pressable
+      style={styles.toggle}
+      onPress={onToggle}
+      accessibilityRole="switch"
+      accessibilityLabel={`${content.habits.typePouches} / ${content.habits.typeLoose}`}
+      accessibilityState={{ checked: isLoose }}
+    >
+      <Animated.Text style={[styles.toggleLabel, styles.pouchesLabel, pouchesStyle]}>
+        {content.habits.typePouches}
+      </Animated.Text>
+      <GlassSurface
+        radius={15.5}
+        tintColor={isLoose ? colors.ink : "#E9E9E9"}
+        isInteractive
+        style={styles.capsule}
+      >
+        <Animated.View style={[styles.knob, knobStyle]} />
+        <Animated.View style={[styles.capsuleBorder, borderStyle]} />
+      </GlassSurface>
+      <Animated.Text style={[styles.toggleLabel, styles.looseLabel, looseStyle]}>
+        {content.habits.typeLoose}
+      </Animated.Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  topSpacer: {
+    flex: 1,
+    minHeight: 24,
+    maxHeight: 105,
+  },
+  bottomSpacer: {
+    flex: 1,
+    minHeight: 24,
+  },
+  toggle: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  toggleLabel: {
+    fontSize: 22,
+    fontWeight: "600",
+  },
+  pouchesLabel: {
+    marginRight: 28,
+  },
+  looseLabel: {
+    marginLeft: 26,
+  },
+  capsule: {
+    width: 51,
+    height: 31,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  knob: {
+    width: 27,
+    height: 27,
+    borderRadius: 13.5,
+    backgroundColor: colors.white,
+    boxShadow: `0px 1px 7px ${withAlpha(colors.ink, 0.12)}`,
+  },
+  capsuleBorder: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 15.5,
+    borderWidth: 0.5,
+    borderColor: colors.ring,
+  },
+  headers: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 27,
+    paddingTop: 25,
+  },
+  headerYears: {
+    width: 149,
+    textAlign: "center",
+  },
+  headerPerDay: {
+    width: 150,
+    textAlign: "center",
+  },
+  wheels: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 27,
+    paddingTop: 14,
+  },
+  pickerYears: {
+    width: 149,
+    height: 195,
+  },
+  pickerPerDay: {
+    width: 150,
+    height: 195,
+  },
+  pickerItem: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: colors.inkSoft,
+  },
+});

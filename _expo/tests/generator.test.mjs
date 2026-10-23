@@ -36,3 +36,16 @@ test('applies identity and theme without touching source template', () => {
   assert.match(fs.readFileSync(path.join(root, 'global.css'), 'utf8'), /--primary: 142 70% 40%;/u);
   assert.match(fs.readFileSync(path.join(root, 'src', 'constants', 'brand.ts'), 'utf8'), /appName: "Field App"/u);
 });
+
+test('keeps the screen list and feature choices from intake', () => {
+  const plan = normalizePlan({
+    name: 'Field App',
+    slug: 'field-app',
+    bundleId: 'com.acme.field',
+    screens: [{ route: '/(tabs)/home', purpose: 'Jobs today' }],
+    features: { remove: ['payments'], off: ['analytics'] },
+  });
+  assert.equal(plan.screens[0].purpose, 'Jobs today');
+  assert.deepEqual(plan.features, { off: ['analytics'], remove: ['payments'], add: [] });
+  assert.throws(() => normalizePlan({ name: 'Bad', slug: 'bad', bundleId: 'com.a.b', features: { remove: 'x' } }));
+});

@@ -25,6 +25,9 @@ and `.env.example`. Preserve user changes and never commit `.env`, signing mater
    in the app. Server secrets belong in an edge function or backend.
 8. Supabase-exposed tables require both explicit grants and RLS. Test allow and deny behavior.
 9. Release commands are guarded. Do not build, update, submit, or publish without explicit approval.
+10. To turn a built-in feature off use `bash start.sh feature off ID`; to delete its code and packages use
+    the builder's `feature remove` (see `docs/FEATURES.md`). Do not delete feature files by hand: other
+    files import them, and the builder replaces them with stubs that keep the same exports.
 
 ## Running and testing
 

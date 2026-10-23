@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-10-23 - Expo template features, LUMNI comparison, gap analysis
+
+### Added
+- `bash start.sh expo feature list|status|on|off|remove|add`: switch the Expo template's built-in
+  features off and on (`src/constants/features.ts`), remove them completely (export-compatible stubs,
+  conditional package removal, config plugins, app.json keys, `.env.example` lines, CI jobs) and add them
+  back exactly. Features: auth, payments, analytics, notifications, local-db, device-kit, ota-updates.
+- Restorable `funnel` feature: the upstream 28-step onboarding, full custom paywall, hosted RevenueCat
+  paywall and an `onboarding_responses` migration with row-level security.
+- Project plans accept `features` (`off`, `remove`, `add`); generated apps record changes in
+  `.mobile-builder/`.
+- In-app `bash start.sh feature list|on|off` in generated Expo apps.
+- 16 Expo capabilities from LUMNI's dependencies (UI extras, motion graphics, charts, state and storage,
+  i18n, fonts, biometrics, native Google Sign-In, background tasks, media and system, cryptography,
+  content display, signal maths, WebRTC, testing and debugging, extra haptics); LangChain in `cloud-ai`.
+- Documents: `_expo/docs/FEATURES.md`, app `docs/FEATURES.md`, `docs/LUMNI_COMPARISON.md`,
+  `docs/GAP_ANALYSIS.md`; skill `mobile-features`; prompt `prompts/toggle-features.md`.
+- Builder CI workflow (`.github/workflows/verify.yml`).
+
+### Fixed
+- The owned Settings screen regained the analytics opt-out switch and Manage subscription button.
+- Both generators kept the plan's `screens` list.
+- `setup` refreshes the lockfile once after a feature change made without installing.
+
+### Verified in this change
+- 11 Expo builder tests (feature manifest, stub exports, full remove/add and funnel round trips, flags),
+  Tauri and shared tests, Bash syntax, ShellCheck, JSON validity.
+- On an installed generated app: each feature removed alone, all removed together, and the funnel
+  added; typecheck, lint, format, knip and unit tests passed each time, and adding back produced a
+  byte-identical app. Soft switches all off: same checks passed.
+- Template and funnel migrations applied on PostgreSQL 16 with Supabase shims; row-level security
+  allowed own rows and denied others' and anonymous access.
+- Not verified: native Android or iOS builds, Expo Doctor (no Expo API access), a real Supabase project.
+
 ## 2026-10-22 - Mobile Starter App Builder: Expo + Tauri 2
 
 ### Added

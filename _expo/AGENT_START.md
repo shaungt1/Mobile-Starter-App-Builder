@@ -72,7 +72,8 @@ Never collapse these gates into one large unverified change.
    and render a small representative screen before expanding the UI.
 6. **Capabilities:** use `bash start.sh capabilities list`, discuss only relevant choices, install one
    capability with `... install <id> <app> --apply`, complete its native/config/dashboard work, and run
-   verification before selecting the next.
+   verification before selecting the next. To turn a built-in template feature off, remove it, or add the
+   upstream onboarding funnel, use `bash start.sh feature ...` as described in `docs/FEATURES.md`.
 7. **Product work:** build screens against mocks or typed service interfaces first. Connect real APIs,
    persistence, auth, payments, and hardware incrementally.
 8. **Runtime verification:** test web/Expo Go only where supported; test every native capability in a

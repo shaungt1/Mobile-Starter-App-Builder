@@ -32,6 +32,15 @@ if [[ "${1:-}" == "--full" ]]; then
   work="$(mktemp -d)"
   node _expo/starter/generator/create-app.mjs "$work/expo-app" --plan _expo/starter/project-plan.example.json >/dev/null
   (cd "$work/expo-app" && bash start.sh setup)
+  echo "==> Expo features: remove all, check, add back, add the funnel, check"
+  app="$work/expo-app"
+  check_app() { (cd "$app" && bun run typecheck && bun run lint && bun run format:check && bun run check:unused && bun run test:unit); }
+  features=(notifications analytics payments auth local-db device-kit ota-updates)
+  for id in "${features[@]}"; do node _expo/scripts/features.mjs remove "$id" "$app"; done
+  check_app
+  for ((i = ${#features[@]} - 1; i >= 0; i--)); do node _expo/scripts/features.mjs add "${features[i]}" "$app"; done
+  node _expo/scripts/features.mjs add funnel "$app"
+  check_app
   rm -rf "$work"
 fi
 echo "Builder verification passed."

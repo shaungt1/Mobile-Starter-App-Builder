@@ -1,0 +1,293 @@
+import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, Text, View } from "react-native";
+import type { StyleProp, ViewStyle } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { GlassSurface } from "@/components/ui/glass";
+import { Icon } from "@/components/ui/icon";
+import { PrimaryCTA } from "@/components/ui/primary-cta";
+import { TitleBlock } from "@/components/ui/title-block";
+import { content } from "@/constants/content";
+import { colors, layout, withAlpha } from "@/constants/theme";
+
+import { OnboardingScaffold } from "../components/onboarding-scaffold";
+import { useFlow } from "../hooks/use-flow";
+
+function StarRow({ size, spacing }: { size: number; spacing: number }) {
+  return (
+    <View style={[styles.starRow, { gap: spacing }]}>
+      {[0, 1, 2, 3, 4].map((index) => (
+        <Icon key={index} name="star.fill" size={size} color={colors.orange} />
+      ))}
+    </View>
+  );
+}
+
+function InitialAvatar({
+  letter,
+  fill,
+  style,
+}: {
+  letter: string;
+  fill: string;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[styles.avatarRing, style]}>
+      <View style={[styles.avatarInner, { backgroundColor: fill }]}>
+        <Text style={styles.avatarLetter}>{letter}</Text>
+      </View>
+    </View>
+  );
+}
+
+export default function RatingRequestScreen() {
+  const flow = useFlow("rating");
+  const { advance } = flow;
+  const insets = useSafeAreaInsets();
+
+  return (
+    <OnboardingScaffold flow={flow} ctaTitle={null}>
+      <View style={styles.container}>
+        <View style={styles.column}>
+          <TitleBlock title={content.rating.title} />
+          <View style={styles.gapTitle} />
+          <GlassSurface
+            radius={20}
+            tintColor={withAlpha(colors.white, 0.9)}
+            style={styles.laurelCard}
+          >
+            <View style={styles.laurelRow}>
+              <Icon name="laurel.leading" size={55} width={64} height={55} color={colors.orange} />
+              <View style={styles.laurelCenter}>
+                <View style={styles.laurelScoreRow}>
+                  <Text style={styles.laurelScore}>{content.rating.laurelScore}</Text>
+                  <StarRow size={18} spacing={4} />
+                </View>
+                <Text style={styles.laurelCaption}>{content.rating.laurelCaption}</Text>
+              </View>
+              <Icon name="laurel.trailing" size={55} width={64} height={55} color={colors.orange} />
+            </View>
+          </GlassSurface>
+          <View style={styles.gapLaurel} />
+          <Text style={styles.madeFor}>{content.rating.madeFor}</Text>
+          <View style={styles.gapMadeFor} />
+          <View style={styles.avatarTrio}>
+            <InitialAvatar letter="J" fill="#7C8B6F" />
+            <InitialAvatar letter="S" fill="#6F7C8B" style={styles.avatarOverlap} />
+            <InitialAvatar letter="M" fill="#8B6F7C" style={styles.avatarOverlap} />
+          </View>
+          <View style={styles.gapAvatars} />
+          <Text style={styles.usersCount}>{content.rating.usersCount}</Text>
+          <View style={styles.gapUsers} />
+          <GlassSurface
+            radius={20}
+            tintColor={withAlpha(colors.cardFill, 0.85)}
+            style={styles.testimonialCard}
+          >
+            <View style={styles.testimonialTop}>
+              <View style={styles.testimonialAvatar}>
+                <Text style={styles.testimonialAvatarLetter}>
+                  {content.rating.testimonialName.charAt(0)}
+                </Text>
+              </View>
+              <Text style={styles.testimonialName}>{content.rating.testimonialName}</Text>
+              <View style={styles.flexSpacer} />
+              <StarRow size={13} spacing={6} />
+            </View>
+            <Text style={styles.testimonialQuote}>{content.rating.testimonialQuote}</Text>
+          </GlassSurface>
+          <View style={styles.gapTestimonial} />
+          <View style={styles.peekCard} />
+        </View>
+        <View pointerEvents="none" style={styles.scrim}>
+          <LinearGradient
+            colors={[withAlpha(colors.white, 0), colors.white]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.scrimGradient}
+          />
+          <View style={styles.scrimSolid} />
+        </View>
+        <View style={[styles.ctaWrap, { paddingBottom: insets.bottom + 16 }]}>
+          <PrimaryCTA title={content.common.continue} onPress={advance} />
+        </View>
+      </View>
+    </OnboardingScaffold>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  column: {
+    flex: 1,
+    overflow: "hidden",
+    alignItems: "center",
+  },
+  gapTitle: {
+    height: 18,
+  },
+  gapLaurel: {
+    height: 45,
+  },
+  gapMadeFor: {
+    height: 24,
+  },
+  gapAvatars: {
+    height: 12,
+  },
+  gapUsers: {
+    height: 40,
+  },
+  gapTestimonial: {
+    height: 12,
+  },
+  laurelCard: {
+    alignSelf: "stretch",
+    marginHorizontal: layout.margin,
+    height: 95,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.cardStroke,
+    justifyContent: "center",
+  },
+  laurelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  laurelCenter: {
+    alignItems: "center",
+    gap: 3,
+  },
+  laurelScoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  laurelScore: {
+    fontSize: 21,
+    fontWeight: "700",
+    color: colors.ink,
+  },
+  laurelCaption: {
+    fontSize: 19,
+    fontWeight: "600",
+    color: colors.secondaryText,
+  },
+  starRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  madeFor: {
+    fontSize: 30,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    color: colors.ink,
+    textAlign: "center",
+  },
+  avatarTrio: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatarRing: {
+    width: 72.6,
+    height: 72.6,
+    borderRadius: 36.3,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarOverlap: {
+    marginLeft: -14,
+  },
+  avatarInner: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarLetter: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.white,
+  },
+  usersCount: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.ink,
+  },
+  testimonialCard: {
+    alignSelf: "stretch",
+    marginHorizontal: layout.margin,
+    minHeight: 142,
+    borderRadius: 20,
+    paddingHorizontal: 26,
+    paddingTop: 18,
+    paddingBottom: 17,
+  },
+  testimonialTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+  },
+  testimonialAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.slate,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  testimonialAvatarLetter: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.white,
+  },
+  testimonialName: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.ctaFill,
+  },
+  flexSpacer: {
+    flex: 1,
+  },
+  testimonialQuote: {
+    fontSize: 17,
+    fontWeight: "400",
+    color: colors.secondaryText,
+    marginTop: 12,
+  },
+  peekCard: {
+    alignSelf: "stretch",
+    marginHorizontal: layout.margin,
+    height: 110,
+    backgroundColor: colors.progressTrack,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  scrim: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  scrimGradient: {
+    height: 40,
+  },
+  scrimSolid: {
+    height: 88,
+    backgroundColor: colors.white,
+  },
+  ctaWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: layout.ctaMargin,
+  },
+});
