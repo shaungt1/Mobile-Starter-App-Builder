@@ -54,5 +54,6 @@ See `docs/TESTING.md` for native and service-specific gates.
 - `src/lib/`: configured infrastructure adapters
 - `supabase/`: optional cloud schema, Edge Functions, and security tests
 
-Read `AGENT_START.md` before agent-driven changes, `docs/SCREENS.md` before adding screens, and
-`docs/CAPABILITIES.md` before adding native SDKs.
+Read `AGENT_START.md` before agent-driven changes, `docs/SCREENS.md` before adding screens,
+`docs/CAPABILITIES.md` before adding native SDKs, and `docs/FEATURES.md` to switch off or remove a
+built-in feature (auth, payments, analytics, notifications, local database, device modules, updates).

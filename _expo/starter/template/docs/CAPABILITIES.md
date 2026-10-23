@@ -3,7 +3,8 @@
 Core includes navigation, UI primitives, theming, forms-ready dependencies, secure storage, files,
 document/image pickers, sharing, clipboard, camera, network state, notifications, SQLite/Drizzle,
 Supabase auth adapters, RevenueCat adapters, and PostHog adapters. Service adapters do nothing until
-configured; camera and file permissions must be requested in context.
+configured; camera and file permissions must be requested in context. Each of these can be switched
+off, removed or added back: see `docs/FEATURES.md`.
 
 Add these only when required:
 

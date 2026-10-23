@@ -23,7 +23,10 @@
         "tailwindcss-animate",
         "lucide-react-native"
       ],
-      "devPackages": ["tailwindcss@^3.4.17", "prettier-plugin-tailwindcss"],
+      "devPackages": [
+        "tailwindcss@^3.4.17",
+        "prettier-plugin-tailwindcss"
+      ],
       "env": [],
       "steps": [
         "Copy/adapt the files in code/ and import global.css once in the root layout.",
@@ -35,10 +38,23 @@
       "id": "supabase-auth",
       "name": "Supabase data and authentication",
       "requiresDevBuild": false,
-      "expo": ["expo-secure-store", "expo-web-browser", "expo-linking", "expo-apple-authentication", "expo-crypto"],
-      "packages": ["@supabase/supabase-js", "@react-native-async-storage/async-storage", "react-native-url-polyfill"],
+      "expo": [
+        "expo-secure-store",
+        "expo-web-browser",
+        "expo-linking",
+        "expo-apple-authentication",
+        "expo-crypto"
+      ],
+      "packages": [
+        "@supabase/supabase-js",
+        "@react-native-async-storage/async-storage",
+        "react-native-url-polyfill"
+      ],
       "devPackages": [],
-      "env": ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SUPABASE_ANON_KEY"],
+      "env": [
+        "EXPO_PUBLIC_SUPABASE_URL",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY"
+      ],
       "steps": [
         "Check Data API schema exposure and role grants, then enable RLS with least-privilege ownership policies on every exposed table.",
         "Use secure chunked session storage on native and a deliberate web fallback.",
@@ -52,9 +68,16 @@
       "id": "sqlite-drizzle",
       "name": "Offline SQLite with Drizzle ORM",
       "requiresDevBuild": false,
-      "expo": ["expo-sqlite"],
-      "packages": ["drizzle-orm"],
-      "devPackages": ["drizzle-kit", "expo-drizzle-studio-plugin"],
+      "expo": [
+        "expo-sqlite"
+      ],
+      "packages": [
+        "drizzle-orm"
+      ],
+      "devPackages": [
+        "drizzle-kit",
+        "expo-drizzle-studio-plugin"
+      ],
       "env": [],
       "steps": [
         "Define schema and migrations under a dedicated data layer; never mutate production schema ad hoc.",
@@ -83,7 +106,10 @@
       "name": "RevenueCat subscriptions and paywall",
       "requiresDevBuild": true,
       "expo": [],
-      "packages": ["react-native-purchases", "react-native-purchases-ui"],
+      "packages": [
+        "react-native-purchases",
+        "react-native-purchases-ui"
+      ],
       "devPackages": [],
       "env": [
         "EXPO_PUBLIC_REVENUECAT_IOS_KEY",
@@ -100,10 +126,22 @@
       "id": "analytics",
       "name": "PostHog analytics and optional Sentry errors",
       "requiresDevBuild": true,
-      "expo": ["expo-file-system", "expo-application", "expo-device"],
-      "packages": ["posthog-react-native", "@posthog/react-native-plugin", "@sentry/react-native"],
+      "expo": [
+        "expo-file-system",
+        "expo-application",
+        "expo-device"
+      ],
+      "packages": [
+        "posthog-react-native",
+        "@posthog/react-native-plugin",
+        "@sentry/react-native"
+      ],
       "devPackages": [],
-      "env": ["EXPO_PUBLIC_POSTHOG_KEY", "EXPO_PUBLIC_POSTHOG_HOST", "EXPO_PUBLIC_POSTHOG_SESSION_REPLAY"],
+      "env": [
+        "EXPO_PUBLIC_POSTHOG_KEY",
+        "EXPO_PUBLIC_POSTHOG_HOST",
+        "EXPO_PUBLIC_POSTHOG_SESSION_REPLAY"
+      ],
       "steps": [
         "Define a typed event map and identity reset behavior before instrumenting screens.",
         "Default session replay off until consent and privacy disclosures are approved.",
@@ -114,7 +152,11 @@
       "id": "notifications",
       "name": "Push and local notifications",
       "requiresDevBuild": true,
-      "expo": ["expo-notifications", "expo-device", "expo-constants"],
+      "expo": [
+        "expo-notifications",
+        "expo-device",
+        "expo-constants"
+      ],
       "packages": [],
       "devPackages": [],
       "env": [],
@@ -128,7 +170,13 @@
       "id": "device-files",
       "name": "Documents, media library, clipboard, and sharing",
       "requiresDevBuild": false,
-      "expo": ["expo-file-system", "expo-document-picker", "expo-image-picker", "expo-sharing", "expo-clipboard"],
+      "expo": [
+        "expo-file-system",
+        "expo-document-picker",
+        "expo-image-picker",
+        "expo-sharing",
+        "expo-clipboard"
+      ],
       "packages": [],
       "devPackages": [],
       "env": [],
@@ -142,7 +190,9 @@
       "id": "device-sensors",
       "name": "Motion, orientation, pressure, light, and pedometer sensors",
       "requiresDevBuild": false,
-      "expo": ["expo-sensors"],
+      "expo": [
+        "expo-sensors"
+      ],
       "packages": [],
       "devPackages": [],
       "env": [],
@@ -157,7 +207,9 @@
       "name": "Bluetooth Low Energy",
       "requiresDevBuild": true,
       "expo": [],
-      "packages": ["react-native-ble-plx"],
+      "packages": [
+        "react-native-ble-plx"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
@@ -170,8 +222,15 @@
       "id": "iot-network",
       "name": "MQTT, sockets, UDP, and local discovery",
       "requiresDevBuild": true,
-      "expo": ["expo-network"],
-      "packages": ["mqtt", "react-native-tcp-socket", "react-native-udp", "react-native-zeroconf"],
+      "expo": [
+        "expo-network"
+      ],
+      "packages": [
+        "mqtt",
+        "react-native-tcp-socket",
+        "react-native-udp",
+        "react-native-zeroconf"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
@@ -184,8 +243,16 @@
       "id": "camera-vision",
       "name": "Camera, image selection, and on-device OCR",
       "requiresDevBuild": true,
-      "expo": ["expo-camera", "expo-image-picker", "expo-image-manipulator"],
-      "packages": ["react-native-vision-camera", "react-native-worklets-core", "@react-native-ml-kit/text-recognition"],
+      "expo": [
+        "expo-camera",
+        "expo-image-picker",
+        "expo-image-manipulator"
+      ],
+      "packages": [
+        "react-native-vision-camera",
+        "react-native-worklets-core",
+        "@react-native-ml-kit/text-recognition"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
@@ -198,8 +265,15 @@
       "id": "audio-speech",
       "name": "Audio recording, playback, speech, and transcription",
       "requiresDevBuild": true,
-      "expo": ["expo-audio", "expo-speech"],
-      "packages": ["expo-speech-recognition", "react-native-audio-api", "react-native-track-player"],
+      "expo": [
+        "expo-audio",
+        "expo-speech"
+      ],
+      "packages": [
+        "expo-speech-recognition",
+        "react-native-audio-api",
+        "react-native-track-player"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
@@ -213,13 +287,25 @@
       "name": "Server-mediated cloud AI",
       "requiresDevBuild": false,
       "expo": [],
-      "packages": ["ai", "openai", "@anthropic-ai/sdk", "zod"],
+      "packages": [
+        "ai",
+        "openai",
+        "@anthropic-ai/sdk",
+        "zod",
+        "@langchain/core",
+        "@langchain/anthropic",
+        "@langchain/openai",
+        "@langchain/langgraph",
+        "langchain",
+        "js-tiktoken"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
         "Call providers through an authenticated server/edge function; never bundle provider secret keys.",
         "Add structured output validation, timeouts, cancellation, usage/cost logging, and safe error messages.",
-        "Define data retention and user disclosure for content sent to providers."
+        "Define data retention and user disclosure for content sent to providers.",
+        "LangChain and LangGraph packages are for agent workflows; prefer running them on the server, and use js-tiktoken only for token counting and cost estimates."
       ]
     },
     {
@@ -227,13 +313,325 @@
       "name": "On-device ONNX or llama.cpp models",
       "requiresDevBuild": true,
       "expo": [],
-      "packages": ["onnxruntime-react-native", "llama.rn"],
+      "packages": [
+        "onnxruntime-react-native",
+        "llama.rn"
+      ],
       "devPackages": [],
       "env": [],
       "steps": [
         "Select one runtime only after benchmarking model size, RAM, latency, thermals, and supported devices.",
         "Plan model download, integrity, licensing, versioning, storage, eviction, and offline failure UI.",
         "Test release builds on representative physical devices; emulators are not performance evidence."
+      ]
+    },
+    {
+      "id": "ui-extras",
+      "name": "Advanced UI building blocks proven in LUMNI (sheets, fast lists, keyboard, toasts, native menus, pagers, carousels, reorderable lists)",
+      "requiresDevBuild": true,
+      "expo": [
+        "@gorhom/bottom-sheet",
+        "@shopify/flash-list",
+        "react-native-keyboard-controller",
+        "react-native-pager-view",
+        "expo-blur",
+        "expo-image"
+      ],
+      "packages": [
+        "sonner-native",
+        "zeego",
+        "@react-native-menu/menu",
+        "react-native-context-menu-view",
+        "react-native-draggable-flatlist",
+        "react-native-reanimated-carousel"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Install only the pieces a screen needs; each one adds native code and bundle size.",
+        "Wrap the app in KeyboardProvider (react-native-keyboard-controller) and BottomSheetModalProvider (@gorhom/bottom-sheet) inside GestureHandlerRootView when those are used.",
+        "zeego, @react-native-menu/menu and react-native-context-menu-view are alternatives for native menus; choose one.",
+        "Rebuild the development client and test sheets, menus and keyboard handling on both a physical iPhone and an Android device."
+      ]
+    },
+    {
+      "id": "motion-graphics",
+      "name": "Rich motion and graphics (Skia canvas, Lottie, Rive, Moti)",
+      "requiresDevBuild": true,
+      "expo": [
+        "@shopify/react-native-skia",
+        "lottie-react-native"
+      ],
+      "packages": [
+        "rive-react-native",
+        "moti"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Prefer Reanimated (already in the template) for UI motion; add these only for drawn graphics or designer-made animation files.",
+        "Respect reduced motion (Reanimated ReduceMotion / AccessibilityInfo) for every looping animation.",
+        "Rive needs a development build; Skia and Lottie add several MB to the binary. Measure with bun run analyze."
+      ]
+    },
+    {
+      "id": "charts",
+      "name": "Charts and data visualisation",
+      "requiresDevBuild": false,
+      "expo": [],
+      "packages": [
+        "victory-native",
+        "react-native-gifted-charts",
+        "react-native-wagmi-charts",
+        "d3-array",
+        "d3-scale",
+        "d3-shape"
+      ],
+      "devPackages": [
+        "@types/d3-array",
+        "@types/d3-scale",
+        "@types/d3-shape"
+      ],
+      "env": [],
+      "steps": [
+        "Choose one chart library: victory-native (Skia-based; install the motion-graphics capability first), react-native-gifted-charts (SVG + linear gradient, already in the template) or react-native-wagmi-charts (financial line and candle charts).",
+        "Use d3 modules only for scales and shapes; do not render with d3 DOM APIs.",
+        "Provide a text or table alternative for screen readers."
+      ]
+    },
+    {
+      "id": "state-storage",
+      "name": "Client state, state machines and fast key-value storage",
+      "requiresDevBuild": true,
+      "expo": [],
+      "packages": [
+        "zustand",
+        "xstate",
+        "@xstate/react",
+        "react-native-mmkv",
+        "@tanstack/query-async-storage-persister"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Keep server data in TanStack Query; use zustand for small client state and xstate only for multi-step flows that need explicit states.",
+        "react-native-mmkv needs a development build (not Expo Go); keep AsyncStorage as the web fallback.",
+        "Never store tokens or secrets in MMKV or AsyncStorage; use expo-secure-store."
+      ]
+    },
+    {
+      "id": "i18n",
+      "name": "Translations and locale formatting",
+      "requiresDevBuild": false,
+      "expo": [
+        "expo-localization"
+      ],
+      "packages": [
+        "i18next",
+        "react-i18next",
+        "intl-pluralrules"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Initialise i18next once at startup with the device locale from expo-localization and a fallback language.",
+        "Import intl-pluralrules before i18next when the JavaScript engine lacks Intl.PluralRules (i18next warns at startup); LUMNI shipped it.",
+        "Move user-facing strings out of src/constants/content.ts into translation files; test right-to-left layouts if any RTL language ships."
+      ]
+    },
+    {
+      "id": "fonts",
+      "name": "Google Fonts through Expo",
+      "requiresDevBuild": false,
+      "expo": [
+        "expo-font",
+        "@expo-google-fonts/inter"
+      ],
+      "packages": [],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Replace or add @expo-google-fonts/* families as the brand requires (LUMNI used Inter, Lora and JetBrains Mono).",
+        "Load fonts in the root layout behind the splash screen with a timeout so a font failure never blocks startup.",
+        "Map the families into tailwind.config.js fontFamily so NativeWind classes use them."
+      ]
+    },
+    {
+      "id": "local-auth",
+      "name": "Biometric unlock (Face ID, Touch ID, fingerprint)",
+      "requiresDevBuild": true,
+      "expo": [
+        "expo-local-authentication"
+      ],
+      "packages": [],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Add the Face ID usage description (NSFaceIDUsageDescription) through the config plugin options.",
+        "Treat biometrics as a convenience unlock for a secret kept in expo-secure-store, never as the only authentication.",
+        "Test on a physical device with biometrics enrolled; emulators only simulate it."
+      ]
+    },
+    {
+      "id": "google-signin",
+      "name": "Native Google Sign-In",
+      "requiresDevBuild": true,
+      "expo": [],
+      "packages": [
+        "@react-native-google-signin/google-signin"
+      ],
+      "devPackages": [],
+      "env": [
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID"
+      ],
+      "steps": [
+        "The template's auth feature already signs in with Google through Supabase OAuth in a browser; add this only for the native account picker.",
+        "Create Web, iOS and Android OAuth clients in Google Cloud; register the Android SHA-1 of every signing key (debug, EAS, Play App Signing).",
+        "Pass the Google ID token to supabase.auth.signInWithIdToken and enable Google in Supabase with the same client IDs."
+      ]
+    },
+    {
+      "id": "background-tasks",
+      "name": "Background tasks and keeping the screen awake",
+      "requiresDevBuild": true,
+      "expo": [
+        "expo-background-task",
+        "expo-task-manager",
+        "expo-keep-awake"
+      ],
+      "packages": [],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Define tasks at module scope (outside components) and register them after startup.",
+        "Operating systems decide when background tasks run; never rely on exact timing. iOS needs the background mode in app.json.",
+        "Use expo-keep-awake only while a session that needs the screen on is active."
+      ]
+    },
+    {
+      "id": "media-system",
+      "name": "Media library, printing, screen-capture protection and Android navigation bar",
+      "requiresDevBuild": true,
+      "expo": [
+        "expo-media-library",
+        "expo-print",
+        "expo-screen-capture",
+        "expo-navigation-bar",
+        "expo-image-manipulator"
+      ],
+      "packages": [],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Ask for media-library permission only when the user saves or picks media, and handle limited-access photos on iOS.",
+        "expo-screen-capture can block screenshots on screens with sensitive data; tell users why.",
+        "Test printing and saving on physical devices."
+      ]
+    },
+    {
+      "id": "crypto-binary",
+      "name": "Fast cryptography and binary data helpers",
+      "requiresDevBuild": true,
+      "expo": [],
+      "packages": [
+        "react-native-quick-crypto",
+        "react-native-get-random-values",
+        "@craftzdog/react-native-buffer",
+        "react-native-quick-base64"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Import react-native-get-random-values first in the entry file when a library needs crypto.getRandomValues.",
+        "Prefer expo-crypto (already in the template) for hashing and random bytes; add these only for libraries that need Node-style crypto or Buffer.",
+        "Never generate or store long-lived secrets on the device unless they are protected by expo-secure-store."
+      ]
+    },
+    {
+      "id": "content-display",
+      "name": "Markdown, QR codes, dates and utilities",
+      "requiresDevBuild": false,
+      "expo": [],
+      "packages": [
+        "react-native-markdown-display",
+        "react-native-qrcode-svg",
+        "date-fns",
+        "es-toolkit"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Treat markdown from users or AI models as untrusted: disable raw HTML and restrict link handling.",
+        "react-native-qrcode-svg renders with react-native-svg, already in the template."
+      ]
+    },
+    {
+      "id": "signal-math",
+      "name": "Numeric and signal processing in JavaScript",
+      "requiresDevBuild": false,
+      "expo": [],
+      "packages": [
+        "ml-matrix",
+        "fft.js",
+        "simple-statistics"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Run heavy computation off the UI thread (a worklet, a native module or a server) and measure on a low-end Android phone."
+      ]
+    },
+    {
+      "id": "realtime-media",
+      "name": "Real-time audio and video (WebRTC)",
+      "requiresDevBuild": true,
+      "expo": [],
+      "packages": [
+        "react-native-webrtc"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "Use the @config-plugins/react-native-webrtc config plugin and a development build; check its supported SDK version first.",
+        "Add camera and microphone permission texts; plan TURN servers for calls across restrictive networks.",
+        "Test on two physical devices on different networks."
+      ]
+    },
+    {
+      "id": "testing-debug",
+      "name": "Component tests, API mocking and debugging",
+      "requiresDevBuild": false,
+      "expo": [],
+      "packages": [],
+      "devPackages": [
+        "jest",
+        "jest-expo",
+        "@testing-library/react-native",
+        "@types/jest",
+        "msw",
+        "reactotron-react-native"
+      ],
+      "env": [],
+      "steps": [
+        "Add a jest.config.js with preset jest-expo and a test:components script; keep the template's node tests for configuration.",
+        "@testing-library/react-native includes the matchers that @testing-library/jest-native used to provide; do not add the deprecated package.",
+        "Load Reactotron only in __DEV__ builds and never ship it in production bundles."
+      ]
+    },
+    {
+      "id": "haptics-extra",
+      "name": "Advanced haptic patterns",
+      "requiresDevBuild": true,
+      "expo": [],
+      "packages": [
+        "react-native-haptic-feedback"
+      ],
+      "devPackages": [],
+      "env": [],
+      "steps": [
+        "expo-haptics (already in the template) covers impact, notification and selection feedback; add this only for patterns it lacks.",
+        "Always pair haptics with a visual change and respect the system setting."
       ]
     }
   ]

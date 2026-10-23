@@ -11,6 +11,7 @@
     "src/lib/analytics.tsx",
     "src/lib/notifications.ts",
     "src/lib/revenuecat-ui.ts",
+    "src/lib/tasks.ts",
     "plugins/*.js"
   ],
   "project": ["src/**/*.{ts,tsx}", "plugins/*.js"],

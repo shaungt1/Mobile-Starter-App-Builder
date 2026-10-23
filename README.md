@@ -14,11 +14,12 @@ what each produces; `_tauri2/README.md` compares them in more detail.
 
 | Folder | Platform | Interface | What a new app starts with |
 | --- | --- | --- | --- |
-| [`_expo/`](_expo/README.md) | Expo (React Native) | NativeWind + React Native Reusables, the shadcn/ui component API for React Native | Owned, pinned template derived from the MIT-licensed Simonstorms expo-app-template: Expo Router, auth (Supabase), paywall (RevenueCat), analytics (PostHog), notifications, local SQLite + Drizzle, EAS profiles, Android/iOS launch scripts. A second path creates a clean app on the newest Expo SDK with the same UI foundation. |
+| [`_expo/`](_expo/README.md) | Expo (React Native) | NativeWind + React Native Reusables, the shadcn/ui component API for React Native | Owned, pinned template derived from the MIT-licensed Simonstorms expo-app-template: Expo Router, auth (Supabase), paywall (RevenueCat), analytics (PostHog), notifications, local SQLite + Drizzle, EAS profiles, Android/iOS launch scripts. Each built-in feature can be switched off, removed or added back, and the upstream onboarding funnel can be added (`_expo/docs/FEATURES.md`). A second path creates a clean app on the newest Expo SDK with the same UI foundation. |
 | [`_tauri2/`](_tauri2/README.md) | Tauri 2 (Rust core + web view) | React with Vite (default) or Next.js, Tailwind CSS 4, shadcn/ui; Konsta UI (iOS/Material look) as an alternative; Consta UIKit as an add-on | Phone-first shell, three starter screens, typed Rust commands, deny-by-default permissions, mobile plugin catalog (haptics, barcode scanner, biometrics, location, NFC, notifications, SQLite, HTTP, and more). |
 
 Both platforms read the same project plan format (name, slug, scheme, bundle ID, theme colors as HSL
-values, capabilities), so one plan describes an app on either platform.
+values, capabilities, screens), so one plan describes an app on either platform. Expo plans can also
+list template features to switch off, remove or add.
 
 ## Quick start (Windows Git Bash, macOS or Linux)
 
@@ -55,9 +56,12 @@ paste a prompt from [`prompts/`](prompts/), or ask: "Read AGENT_START.md, then b
 | `_expo/` | Expo platform: owned template, pinned upstream snapshot, generator, clean-app path, capability catalog, release scripts, playbook. |
 | `_tauri2/` | Tauri 2 platform: template, Next.js and Konsta overlays, generator, capability catalog and installer, reference docs. |
 | `AGENT_START.md`, `AGENTS.md`, `CLAUDE.md` | Agent entry points and workflow rules. |
-| `.claude/skills/` | One skill per job (intake, machine setup, generate, screens, capabilities, devices, troubleshoot, hand-off). |
+| `.claude/skills/` | One skill per job (intake, machine setup, generate, screens, capabilities, template features, devices, troubleshoot, hand-off). |
 | `prompts/` | Copy-and-paste prompts for common requests. |
 | `docs/LESSONS_LEARNED.md` | Every setup problem found so far, its cause and the fix the scripts apply. |
+| `docs/GAP_ANALYSIS.md` | What is ready, what was fixed, and the open items with priorities. Read this first when taking over the builder. |
+| `docs/LUMNI_COMPARISON.md` | How LUMNI, the first app built from the Expo template, differs from it, and what the template took back. |
+| `_expo/docs/FEATURES.md` | Inventory of the upstream Expo template's features and the switch, remove and add commands. |
 | `tests/` | Builder tests; each platform also has its own `tests/`. |
 
 ## Rules the builder enforces
@@ -84,6 +88,9 @@ The status column below separates what is finished and tested from what is plann
 | Generate into a new GitHub repository, commit and push | Done | Tested against a local bare repository. |
 | Machine setup: doctor, install-prereqs (winget / Homebrew / apt-dnf-pacman), Android SDK + emulator | Done | Dry runs tested on Linux; installs on Windows and macOS use the package IDs listed in `QUICKSTART.md`. |
 | Real Android and iOS builds of generated apps on a developer machine | Next | Needs a machine with Android Studio (and a Mac for iOS); record results in `docs/LESSONS_LEARNED.md`. |
+| Expo template feature switches: off/on, remove, add back, upstream onboarding funnel, choice in the plan | Done | Every feature removed and re-added on an installed app with all checks passing and a byte-identical result; funnel migration tested on PostgreSQL with row-level security. |
+| Expo capability catalog extended with the packages LUMNI proved (16 new entries) | Done | Install and device-test each in the app that needs it. |
+| AI section: on-device and cloud SDKs, OCR, detection, camera vision, server-proxy pattern | Next | Requested; see `docs/GAP_ANALYSIS.md` O-09. |
 | Upgrade the owned Expo template from SDK 57 to 58 | Planned | Follow `_expo/docs/TEMPLATE_ADOPTION_PLAN.md`, phase 6. |
 | Tauri modules: auth (OIDC), secure storage, push notifications, auto-update for stores | Planned | Can be ported from Desktop Starter App Builder's Tauri modules. |
 | PowerShell entry point (`start.ps1`) | Planned | Git Bash is the supported Windows shell today. |

@@ -27,7 +27,22 @@ export function normalizePlan(input) {
     if (!HSL.test(theme[key])) throw new Error(`theme.${key} must be an HSL triplet such as "221 83% 53%".`);
   }
   const capabilities = [...new Set(input.capabilities ?? ['core'])];
-  return { name, slug, scheme, bundleId, theme, capabilities };
+  const plan = { name, slug, scheme, bundleId, theme, capabilities };
+  // Screen list from intake; kept as written so the app's docs/SCREENS.md workflow can use it.
+  if (input.screens !== undefined) {
+    if (!Array.isArray(input.screens)) throw new Error('screens must be a list.');
+    plan.screens = input.screens;
+  }
+  // Optional: template features to switch off, remove or add at creation (see _expo/docs/FEATURES.md).
+  if (input.features) {
+    const list = (key) => {
+      const value = input.features[key] ?? [];
+      if (!Array.isArray(value) || value.some((id) => typeof id !== 'string')) throw new Error(`features.${key} must be a list of feature ids.`);
+      return [...new Set(value)];
+    };
+    plan.features = { off: list('off'), remove: list('remove'), add: list('add') };
+  }
+  return plan;
 }
 
 function writeJson(file, value) {

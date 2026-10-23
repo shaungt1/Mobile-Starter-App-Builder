@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { bashCommand, copyTemplate, ensureGitRepository, inspectTarget } from "../../../scripts/lib/target.mjs";
+import { addFeature, findFeature, removeFeature, setFeatureFlag } from "../../scripts/features.mjs";
 import { applyPlan, normalizePlan } from "./project-config.mjs";
 
 const generatorDir = path.dirname(fileURLToPath(import.meta.url));
@@ -36,7 +37,8 @@ if (!targetArg || targetArg.startsWith("--") || planIndex < 0 || !args[planIndex
 
 const planFile = path.resolve(args[planIndex + 1]);
 // Validate the plan before touching the disk.
-normalizePlan(JSON.parse(fs.readFileSync(planFile, "utf8")));
+const planned = normalizePlan(JSON.parse(fs.readFileSync(planFile, "utf8")));
+for (const id of Object.values(planned.features ?? {}).flat()) findFeature(id);
 const { target, existing, hasGit } = inspectTarget(targetArg, { builderRoot });
 
 const notes = copyTemplate(templateDir, target, existing);
@@ -45,6 +47,13 @@ const gitattributes = path.join(target, ".gitattributes");
 if (!fs.existsSync(gitattributes)) fs.copyFileSync(path.join(expoDir, "code", "gitattributes"), gitattributes);
 
 const plan = applyPlan(target, JSON.parse(fs.readFileSync(planFile, "utf8")));
+const featureNotes = [];
+if (plan.features) {
+  // No install here: setup installs once and refreshes the lockfile (.mobile-builder/lock-stale).
+  for (const id of plan.features.remove) featureNotes.push(...removeFeature(target, id, { install: false }));
+  for (const id of plan.features.add) featureNotes.push(...addFeature(target, id, { install: false }));
+  for (const id of plan.features.off) featureNotes.push(...setFeatureFlag(target, id, false));
+}
 const gitNote = ensureGitRepository(target, hasGit);
 fs.writeFileSync(
   path.join(target, "SOURCE.md"),
@@ -61,7 +70,7 @@ fs.writeFileSync(
 
 console.log(`Created ${plan.name} (Expo) at ${target}`);
 console.log(`Selected capabilities: ${plan.capabilities.join(", ")}`);
-for (const note of [...notes, gitNote]) console.log(`  - ${note}`);
+for (const note of [...notes, ...featureNotes, gitNote]) console.log(`  - ${note}`);
 if (install) {
   const result = spawnSync(bashCommand(), ["scripts/setup.sh"], { cwd: target, stdio: "inherit", shell: false });
   if (result.status !== 0) process.exit(result.status ?? 1);

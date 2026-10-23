@@ -15,8 +15,9 @@ description: Collect the decisions needed to generate a mobile app (Expo or Taur
    - brand colors (primary, accent, background, foreground as HSL triplets, or hex to convert), light/dark default, radius;
    - screens: route, purpose, data shown, actions;
    - capabilities needed now (`bash start.sh expo capabilities list` or `bash start.sh tauri capability list`);
+   - Expo owned template only: which built-in features to keep, switch off or remove (auth, payments, analytics, notifications, local-db, device-kit, ota-updates) and whether to add the upstream onboarding `funnel`; see `_expo/docs/FEATURES.md`. Default: keep all, no funnel;
    - Tauri only: frontend `vite` or `nextjs`, UI kit `shadcn` or `konsta` (+ `ios`/`material`), whether Consta UIKit is wanted (`consta-ui` capability).
-3. Copy `_expo/starter/project-plan.example.json` or `_tauri2/project-plan.example.json`, fill it, and add a `screens` array.
+3. Copy `_expo/starter/project-plan.example.json` or `_tauri2/project-plan.example.json`, fill it, add a `screens` array, and for Expo a `features` object (`{"off": [], "remove": [], "add": []}`) when anything differs from the default.
 4. Show the plan and get the user's approval.
 
 ## Done when

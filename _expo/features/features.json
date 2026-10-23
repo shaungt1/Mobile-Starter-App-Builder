@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "description": "Features of the owned Expo template that can be switched off, removed or added back, and features restorable from the pinned upstream Simonstorms template. Used by _expo/scripts/features.mjs. Package names are candidates: a package is uninstalled only when no remaining code imports it.",
+  "features": [
+    {
+      "id": "auth",
+      "kind": "built-in",
+      "name": "Sign-in and accounts (Supabase: Sign in with Apple, Google OAuth, secure session storage, sign-out, account deletion, backend schema and edge function)",
+      "flag": "auth",
+      "stubs": ["src/features/auth/api.ts", "src/features/auth/hooks/use-session.ts", "src/features/auth/screens/sign-in-screen.tsx"],
+      "delete": ["src/lib/supabase.ts", "src/lib/secure-storage.ts", "src/types/database.ts", "supabase"],
+      "packages": ["@supabase/supabase-js", "react-native-url-polyfill", "expo-apple-authentication", "expo-crypto", "expo-secure-store", "expo-web-browser", "@react-native-async-storage/async-storage"],
+      "appJsonKeys": ["ios.usesAppleSignIn"],
+      "env": ["EXPO_PUBLIC_SUPABASE_URL", "EXPO_PUBLIC_SUPABASE_ANON_KEY"],
+      "ciJobs": ["edge-functions"]
+    },
+    {
+      "id": "payments",
+      "kind": "built-in",
+      "name": "Subscriptions (RevenueCat entitlements, paywall route and gate, last-known entitlement grace period, customer center)",
+      "flag": "payments",
+      "stubs": ["src/features/paywall/hooks/use-entitlement.ts", "src/features/paywall/hooks/use-revenuecat.ts", "src/features/paywall/screens/paywall-route.tsx", "src/lib/revenuecat.ts", "src/lib/revenuecat-ui.ts"],
+      "delete": ["src/features/paywall/screens/paywall-screen.tsx", "src/features/paywall/api.ts", "src/lib/revenuecat-ui.web.ts", "src/lib/storage.ts", "scripts/setup-revenuecat.sh", "src/lib/guards.ts"],
+      "packages": ["react-native-purchases", "react-native-purchases-ui", "@react-native-async-storage/async-storage"],
+      "env": ["EXPO_PUBLIC_REVENUECAT_IOS_KEY", "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY", "EXPO_PUBLIC_REVENUECAT_ENTITLEMENT"]
+    },
+    {
+      "id": "analytics",
+      "kind": "built-in",
+      "name": "Product analytics (PostHog: screen tracking, typed events, identify/reset, super properties, feature flags, error autocapture, opt-out, session replay)",
+      "flag": "analytics",
+      "stubs": ["src/lib/analytics.tsx"],
+      "delete": [],
+      "packages": ["posthog-react-native", "@posthog/react-native-plugin", "expo-application", "expo-file-system"],
+      "env": ["EXPO_PUBLIC_POSTHOG_KEY", "EXPO_PUBLIC_POSTHOG_HOST", "EXPO_PUBLIC_POSTHOG_SESSION_REPLAY"]
+    },
+    {
+      "id": "notifications",
+      "kind": "built-in",
+      "name": "Local notifications (trial reminder scheduling, deep-link routing when a notification is tapped)",
+      "flag": "notifications",
+      "stubs": ["src/hooks/use-notification-intent.ts"],
+      "delete": ["src/lib/notifications.ts"],
+      "packages": ["expo-notifications"],
+      "env": []
+    },
+    {
+      "id": "local-db",
+      "kind": "built-in",
+      "name": "Local database (Expo SQLite + Drizzle ORM schema and repository)",
+      "stubs": ["src/features/home/api.ts"],
+      "delete": ["src/data"],
+      "packages": ["expo-sqlite", "drizzle-orm", "drizzle-kit"],
+      "env": []
+    },
+    {
+      "id": "device-kit",
+      "kind": "built-in",
+      "name": "Preinstalled device modules not used by template code (camera, image picker, document picker, clipboard, sharing, network state)",
+      "stubs": [],
+      "delete": [],
+      "packages": ["expo-camera", "expo-image-picker", "expo-document-picker", "expo-clipboard", "expo-sharing", "expo-network"],
+      "env": []
+    },
+    {
+      "id": "ota-updates",
+      "kind": "built-in",
+      "name": "Over-the-air JavaScript updates (expo-updates; EAS Update channels in eas.json)",
+      "stubs": [],
+      "delete": [],
+      "packages": ["expo-updates"],
+      "appJsonKeys": ["runtimeVersion"],
+      "appJsonSet": { "updates.enabled": false },
+      "env": []
+    },
+    {
+      "id": "funnel",
+      "kind": "restorable",
+      "name": "Upstream consumer funnel: 28-step onboarding (persisted Zustand store, flow state machine, staged progress, projection graphs) plus the full custom paywall (plan selector, welcome offer, decline sheet, trial timeline, RevenueCat hosted paywall) and the onboarding answers table",
+      "source": "_expo/features/funnel (upstream Simonstorms files at the pinned commit, formatted and checked against the owned template)",
+      "requires": ["auth", "payments", "analytics", "notifications"],
+      "addPackages": { "zustand": "^5.0.14", "@react-native-picker/picker": "2.11.4" },
+      "env": []
+    }
+  ]
+}

@@ -33,6 +33,8 @@ Each stage ends with a check; do not start the next stage while the current chec
 5. **Run** (skill `mobile-run-device`): web first, then an emulator or device. State which targets could
    not be run and why.
 6. **Capabilities** (skill `mobile-capability`): add one, verify, run on a device that supports it, repeat.
+   To switch off, remove or add back an Expo template feature (auth, payments, analytics, notifications,
+   local database, device modules, updates, onboarding funnel) use skill `mobile-features`.
 7. **Screens** (skill `mobile-screens`): follow the app's `docs/SCREENS.md`; mock data first.
 8. **Hand-off** (skill `mobile-handoff`): report as described below.
 

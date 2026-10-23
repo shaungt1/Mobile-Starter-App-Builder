@@ -1,18 +1,28 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { brand } from "@/constants/brand";
 import { hasPostHog, hasRevenueCat, hasSupabase } from "@/constants/config";
 import { deleteAccount, signOut } from "@/features/auth/api";
 import { useSession } from "@/features/auth/hooks/use-session";
+import { analyticsOptedOut, setAnalyticsOptOut } from "@/lib/analytics";
+import { presentCustomerCenter } from "@/lib/revenuecat-ui";
+import { runInBackground } from "@/lib/tasks";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useSession();
+  const [shareAnalytics, setShareAnalytics] = useState(() => !analyticsOptedOut());
+  const toggleShareAnalytics = (next: boolean) => {
+    setShareAnalytics(next);
+    void runInBackground(setAnalyticsOptOut(!next));
+  };
   const removeAccount = () => {
     Alert.alert(
       "Delete account?",
@@ -47,6 +57,33 @@ export default function SettingsScreen() {
             <Text>PostHog analytics: {hasPostHog ? "configured" : "off"}</Text>
           </CardContent>
         </Card>
+        {hasRevenueCat ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Subscription</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" onPress={() => void presentCustomerCenter()}>
+                <Text>Manage subscription</Text>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+        {hasPostHog ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacy</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-row items-center justify-between gap-3">
+              <Text className="flex-1">Share anonymous usage data</Text>
+              <Switch
+                checked={shareAnalytics}
+                onCheckedChange={toggleShareAnalytics}
+                accessibilityLabel="Share anonymous usage data"
+              />
+            </CardContent>
+          </Card>
+        ) : null}
         <Card>
           <CardHeader>
             <CardTitle>Legal and support</CardTitle>

@@ -48,7 +48,13 @@ export function normalizePlan(input) {
   const uiTheme = input.uiTheme ?? "ios";
   if (!["ios", "material"].includes(uiTheme)) throw new Error('uiTheme must be "ios" or "material".');
   const capabilities = [...new Set(input.capabilities ?? [])];
-  return { platform: "tauri", name, slug, scheme, bundleId, theme, frontend, ui, uiTheme, capabilities };
+  const plan = { platform: "tauri", name, slug, scheme, bundleId, theme, frontend, ui, uiTheme, capabilities };
+  // Screen list from intake; kept as written for the screens workflow.
+  if (input.screens !== undefined) {
+    if (!Array.isArray(input.screens)) throw new Error("screens must be a list.");
+    plan.screens = input.screens;
+  }
+  return plan;
 }
 
 function walk(dir, visit) {

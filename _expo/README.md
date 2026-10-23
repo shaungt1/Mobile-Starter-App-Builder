@@ -49,7 +49,8 @@ bash start.sh capabilities list
 
 1. **Owned template (recommended):** `bash start.sh create ../my-app --plan plan.json --install`. A
    complete, tested app (auth, paywall, analytics, local SQL, notifications, EAS, scripts) pinned to a
-   reviewed Expo SDK.
+   reviewed Expo SDK. Any of those features can be switched off or removed, and the upstream 28-step
+   onboarding funnel added: `bash start.sh feature list` and `docs/FEATURES.md`.
 2. **Clean app on the newest SDK:** `bash start.sh clean ../my-app`. Expo's own current template with the
    demo removed, plus NativeWind, React Native Reusables (shadcn/ui for React Native), Reanimated,
    gestures, SVG, haptics and icons. Add product features from the capability catalog.
@@ -59,12 +60,14 @@ bash start.sh capabilities list
 
 | Path | Purpose |
 | --- | --- |
-| `start.sh` | Entry point for generation, setup, verification, running, capabilities, and releases. |
+| `start.sh` | Entry point for generation, setup, verification, running, capabilities, features, and releases. |
 | `starter/upstream-snapshot/` | Complete pinned Simonstorms source, minus nested Git metadata. |
 | `starter/template/` | Generic owned Expo app with UI, local SQL, optional services, scripts, and docs. |
 | `starter/generator/` | Deterministic plan validation, copying, identity, and theme application. |
 | `scripts/startup/` | Setup automation for existing or direct-upstream projects. |
-| `config/capabilities.json` | Opt-in UI, auth, sync, payments, analytics, device, IoT, camera, audio, sensor, and AI catalog. |
+| `config/capabilities.json` | Opt-in UI, auth, sync, payments, analytics, device, IoT, camera, audio, sensor, AI, charts, state, translation, testing and other catalog entries. |
+| `features/`, `scripts/features.mjs` | Template feature manifest, export-compatible stubs, the restorable upstream funnel, and the switch/remove/add tool. |
+| `docs/FEATURES.md` | Inventory of the upstream template and owned template, and the feature switch reference. |
 | `clean/` | Brand-new app from Expo's current template + NativeWind + React Native Reusables (`start.sh clean`). |
 | `code/` | Smaller drop-in reference files for existing projects. |
 

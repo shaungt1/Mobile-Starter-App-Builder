@@ -38,6 +38,10 @@ quickly and knows whether the scripts already handle it. Entries marked "handled
 | White screen on launch | A startup provider threw, or fonts never loaded | Guard startup services; render with a font-loading timeout. |
 | Web build errors "not available on web" | A native call ran during web render | Guard via the environment module. |
 | React Native Reusables `add` overwrote a file | It replaces same-named files | Diff before overwriting. |
+| Deleting a template feature's files by hand breaks the build in many places | Routes, Settings and providers import the feature's modules | Handled: `start.sh expo feature remove` swaps in stubs with the same exports and removes the rest. |
+| knip reports `expo-updates` as an unlisted dependency after removing it | knip's Expo plugin assumes updates are on unless `expo.updates.enabled` is `false` | Handled: removing `ota-updates` sets `updates.enabled: false` and removes `runtimeVersion`. |
+| knip reports packages as unused after removing analytics (`expo-application`, `expo-file-system`) | They are peer modules of the PostHog SDK, not imported by app code | Handled: listed with the analytics feature and removed only when nothing imports them. |
+| `bun install --frozen-lockfile` fails after a dependency change | The lockfile no longer matches `package.json` | Handled: feature changes made with `--no-install` leave `.mobile-builder/lock-stale`; `setup` then installs once without `--frozen-lockfile`. |
 | Fresh `create-expo-app` (SDK 58, 2026-10-22) fails `tsc` | Expo's own demo files do not type-check | Handled: the clean path removes the demo with Expo's `reset-project` script. |
 | `reactnativereusables.com` unreachable (proxy or offline) | The CLI downloads components from the registry | Handled: the clean path falls back to the owned template's components. |
 | Expo Doctor fails with `ENOTFOUND exp.host` | No network access to the Expo API | Run with network; `APP_SKIP_DOCTOR=1` only when that is impossible, and report it. |

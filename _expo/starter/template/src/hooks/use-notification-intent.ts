@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { useEffect } from "react";
 
+import { hasNotifications } from "@/constants/config";
 import { captureEvent } from "@/lib/analytics";
 
 type AppHref = Extract<Href, string>;
@@ -17,7 +18,7 @@ export function useNotificationIntent(): void {
 
   useEffect(() => {
     const url = response?.notification.request.content.data?.url;
-    if (!isAppHref(url)) {
+    if (!hasNotifications || !isAppHref(url)) {
       return;
     }
     captureEvent("notification_opened", { url });

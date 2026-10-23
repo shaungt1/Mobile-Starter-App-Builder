@@ -29,6 +29,9 @@ Commands:
       Start the selected development surface or local native run.
   capabilities list|show ID|install ID TARGET [--apply] [--no-verify]
       Inspect or install one optional capability.
+  feature list | status TARGET | on|off ID TARGET | remove|add ID TARGET [--force] [--no-install]
+      Switch, remove or add back template features (auth, payments, analytics, notifications,
+      local-db, device-kit, ota-updates) and add the upstream onboarding funnel. See docs/FEATURES.md.
   release TARGET build PROFILE PLATFORM [--yes] [--skip-checks]
   release TARGET update CHANNEL MESSAGE [--yes] [--skip-checks]
   release TARGET submit PLATFORM [--yes]
@@ -47,7 +50,7 @@ case "$command" in
   starter)
     subcommand="${1:-}"
     if [[ "$subcommand" != "verify" ]]; then usage; exit 2; fi
-    node --test "$ROOT/tests/generator.test.mjs"
+    node --test "$ROOT"/tests/*.test.mjs
     bash "$ROOT/starter/template/scripts/verify.sh"
     ;;
   system) node "$ROOT/code/check-system.mjs" "$@" ;;
@@ -57,6 +60,7 @@ case "$command" in
   verify) bash "$STARTUP/verify.sh" "$@" ;;
   run) bash "$STARTUP/run.sh" "$@" ;;
   capabilities) node "$STARTUP/capabilities.mjs" "$@" ;;
+  feature | features) node "$ROOT/scripts/features.mjs" "$@" ;;
   release) bash "$STARTUP/release.sh" "$@" ;;
   help|-h|--help) usage ;;
   *) usage; printf '\nerror: unknown command: %s\n' "$command" >&2; exit 1 ;;

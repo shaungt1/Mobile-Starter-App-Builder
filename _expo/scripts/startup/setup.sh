@@ -27,7 +27,15 @@ require_bun
 
 cd "$APP_ROOT"
 heading "Installing dependencies"
-if [[ -f bun.lock || -f bun.lockb ]]; then bun install --frozen-lockfile; else bun install; fi
+if [[ -f .mobile-builder/lock-stale ]]; then
+  # A feature was added or removed with --no-install; refresh the lockfile once.
+  bun install
+  rm -f .mobile-builder/lock-stale
+elif [[ -f bun.lock || -f bun.lockb ]]; then
+  bun install --frozen-lockfile
+else
+  bun install
+fi
 
 if ((FIX_EXPO)); then
   node "$SCRIPT_DIR/ensure-baseline-plugins.mjs" "$APP_ROOT"

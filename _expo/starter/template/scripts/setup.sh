@@ -26,7 +26,13 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 heading "Installing locked dependencies"
-bun install --frozen-lockfile
+if [[ -f .mobile-builder/lock-stale ]]; then
+  # A feature was added or removed without installing; refresh the lockfile once.
+  bun install
+  rm -f .mobile-builder/lock-stale
+else
+  bun install --frozen-lockfile
+fi
 
 heading "Preparing local environment"
 if [[ -f .env ]]; then
